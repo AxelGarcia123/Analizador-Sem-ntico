@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
+	<classpathentry kind="src" path="src"/>
+	<classpathentry kind="lib" path="librerias/barcodes-7.0.7.jar"/>
+	<classpathentry kind="lib" path="librerias/font-asian-7.0.7.jar"/>
+	<classpathentry kind="lib" path="librerias/forms-7.0.7.jar"/>
+	<classpathentry kind="lib" path="librerias/hyph-7.0.7.jar"/>
+	<classpathentry kind="lib" path="librerias/io-7.0.7.jar"/>
+	<classpathentry kind="lib" path="librerias/kernel-7.0.7.jar"/>
+	<classpathentry kind="lib" path="librerias/layout-7.0.7.jar"/>
+	<classpathentry kind="lib" path="librerias/pdfa-7.0.7.jar"/>
+	<classpathentry kind="lib" path="librerias/pdftest-7.0.7.jar"/>
+	<classpathentry kind="lib" path="librerias/sign-7.0.7.jar"/>
+	<classpathentry kind="lib" path="librerias/slf4j-api-1.7.25.jar"/>
+	<classpathentry kind="lib" path="librerias/slf4j-simple-1.7.25.jar"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
