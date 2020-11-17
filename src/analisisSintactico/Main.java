@@ -136,7 +136,7 @@ public class Main {
 		pila.addAccion("Tipo -> "+ token.substring(1, token.indexOf(" ")));
 		//ADVVERTENCIA
 		/**AGREGO DATOS AL ÁRBOL DE DERIVACIÓN*/
-//		arbol.agregarDatoArbol(token.substring(1, token.indexOf(" ")), false);
+		//		arbol.agregarDatoArbol(token.substring(1, token.indexOf(" ")), false);
 		while(pila.getLastPositionCadena() != "$") {
 			String tokenAux = "";
 			FileReader f = new FileReader("src\\ficheros\\listaTokens_8-10-2020_21-17-25.txt");
@@ -212,7 +212,7 @@ public class Main {
 								pila.addAccion("Declaracion -> Variable");
 								//ADVVERTENCIA
 								/**AGREGO DATOS AL ÁRBOL DE DERIVACIÓN*/
-//								arbol.agregarDatoArbol(aux, false);
+								//								arbol.agregarDatoArbol(aux, false);
 							}
 							else {
 								return false;
@@ -238,7 +238,7 @@ public class Main {
 									pila.addAccion("Declaracion -> Declaracion, Declaracion");
 									//ADVVERTENCIA
 									/**AGREGO DATOS AL ÁRBOL DE DERIVACIÓN*/
-//									arbol.agregarDatoArbol("Declaracion, Declaracion", true, "Una regla con espacios");
+									//									arbol.agregarDatoArbol("Declaracion, Declaracion", true, "Una regla con espacios");
 									break;
 								}
 								else if(word.equals("Asignacion")) {
@@ -846,61 +846,496 @@ public class Main {
 	}
 
 	//Otro método
-		public void arbolDeTipo() throws IOException {
-			for(int k = 0; k < pila.getSize(); k++) {
-				if(!pila.getDatoAccion(k).equals("Llevar a pila") && !pila.getDatoAccion(k).equals("0")) {
-					String lexema = pila.getDatoAccion(k).substring(pila.getDatoAccion(k).indexOf("-> ") + "-> ".length());
-					if(lexema.contains(" ")) {
-						int count = 0;
-						for(int i = 0; i < lexema.length(); i++) {
-							if(lexema.charAt(i) == ' ')
-								count++;
+	public void arbolDeTipo() throws IOException {
+		int contador = 1;
+		for(int k = 0; k < pila.getSize(); k++) {
+			if(!pila.getDatoAccion(k).equals("Llevar a pila") && !pila.getDatoAccion(k).equals("0")) {
+				String lexema = pila.getDatoAccion(k).substring(pila.getDatoAccion(k).indexOf("-> ") + "-> ".length());
+				int count = 0;
+				if(lexema.contains(" ")) {
+					for(int i = 0; i < lexema.length(); i++) {
+						if(lexema.charAt(i) == ' ')
+							count++;
+					}
+					if(count == 1) {
+						/**QUIERE DECIR QUE HAY DOS OPCIONES DE CONTENIDO QUE SON REGLAS
+						 * PUEDE SER
+						 * 		OPCION, OPCION
+						 * 		DECLARACION, DECLARACION
+						 * 		TIPO DECLARACION;*/
+						switch(lexema) {
+						case "Cuerpo Funcion":
+							arbol.addNumero(contador);
+							arbol.addLexema("Cuerpo Funcion");
+							arbol.addPadre(0);
+							contador++;
+							for(int i = arbol.getSize(); i > 0; i--) {
+								if(arbol.getDatoPadre(i - 1) == 0 && !arbol.getDatoLexema(i - 1).equals(arbol.getLastPositionLex())) {
+									if((arbol.getDatoLexema(i - 1 ).equals("(") && arbol.getDatoLexema(i - 2).equals("Variable") && arbol.getDatoLexema(i - 3).equals(")")) && (arbol.getDatoPadre(i - 1) == 0 && arbol.getDatoPadre(i - 2) == 0 && arbol.getDatoPadre(i - 3) == 0)) {
+										arbol.getPadre().set(i - 1, arbol.getLastPositionNum());
+										arbol.getPadre().set(i - 2, arbol.getLastPositionNum());
+										arbol.getPadre().set(i - 3, arbol.getLastPositionNum());
+										break;
+									}
+								}
+							}
+							break;
+						
+						case "Tipo Operacion":
+							arbol.addNumero(contador);
+							arbol.addLexema("Tipo Operacion");
+							arbol.addPadre(0);
+							contador++;
+							for(int i = arbol.getSize(); i > 0; i--) {
+								if(arbol.getDatoPadre(i - 1) == 0 && !arbol.getDatoLexema(i - 1).equals(arbol.getLastPositionLex())) {
+									if(arbol.getDatoLexema(i - 1).equals("ADD") || arbol.getDatoLexema(i - 1).equals("SUB") || arbol.getDatoLexema(i - 1).equals("MUL") || arbol.getDatoLexema(i - 1).equals("DIV")) {
+										arbol.getPadre().set(i - 1, arbol.getLastPositionNum());
+										break;
+									}
+								}
+							}
+							break;
+							
+						case "Cuerpo Operacion":
+							arbol.addNumero(contador);
+							arbol.addLexema("Cuerpo Operacion");
+							arbol.addPadre(0);
+							contador++;
+							for(int i = arbol.getSize(); i > 0; i--) {
+								if(arbol.getDatoPadre(i - 1) == 0 && !arbol.getDatoLexema(i - 1).equals(arbol.getLastPositionLex())) {
+									if((arbol.getDatoLexema(i - 1 ).equals("(") && arbol.getDatoLexema(i - 2).equals("Elementos") && arbol.getDatoLexema(i - 3).equals(")")) && (arbol.getDatoPadre(i - 1) == 0 && arbol.getDatoPadre(i - 2) == 0 && arbol.getDatoPadre(i - 3) == 0)) {
+										arbol.getPadre().set(i - 1, arbol.getLastPositionNum());
+										arbol.getPadre().set(i - 2, arbol.getLastPositionNum());
+										arbol.getPadre().set(i - 3, arbol.getLastPositionNum());
+										break;
+									}
+								}
+							}
+							break;
+						case "Tipo Funcion":
+							arbol.addNumero(contador);
+							arbol.addLexema("Tipo Funcion");
+							arbol.addPadre(0);
+							contador++;
+							for(int i = arbol.getSize(); i > 0; i--) {
+								if(arbol.getDatoPadre(i - 1) == 0 && !arbol.getDatoLexema(i - 1).equals(arbol.getLastPositionLex())) {
+									if(arbol.getDatoLexema(i - 1).equals("READ") || arbol.getDatoLexema(i - 1).equals("WRITE")) {
+										arbol.getPadre().set(i - 1, arbol.getLastPositionNum());
+										break;
+									}
+								}
+							}
+							break;
+
+						case "Opcion, Opcion":
+							arbol.addNumero(contador);
+							arbol.addLexema("Opcion");
+							arbol.addPadre(0);
+							contador++;
+							for(int i = arbol.getSize(); i > 0; i--) {
+								if(arbol.getDatoPadre(i - 1) == 0 && !arbol.getDatoLexema(i - 1).equals(arbol.getLastPositionLex())) {
+									if(arbol.getDatoLexema(i - 1).equals("Factor") || arbol.getDatoLexema(i - 1).equals("Operacion")) {
+										arbol.getPadre().set(i - 1, arbol.getLastPositionNum());
+										break;
+									}
+								}
+							}
+							arbol.addNumero(contador);
+							arbol.addLexema(",");
+							arbol.addPadre(0);
+							contador++;
+
+							arbol.addNumero(contador);
+							arbol.addLexema("Opcion");
+							arbol.addPadre(0);
+							contador++;
+							for(int i = arbol.getSize(); i > 0; i--) {
+								if(arbol.getDatoPadre(i - 1) == 0 && !arbol.getDatoLexema(i - 1).equals(arbol.getLastPositionLex())) {
+									if(arbol.getDatoLexema(i - 1).equals("Factor") || arbol.getDatoLexema(i - 1).equals("Operacion")) {
+										arbol.getPadre().set(i - 1, arbol.getLastPositionNum());
+										break;
+									}
+								}
+							}
+							break;
+						case "Declaracion, Declaracion":
+							arbol.addNumero(contador);
+							arbol.addLexema("Declaracion");
+							arbol.addPadre(0);
+							contador++;
+							for(int i = arbol.getSize(); i > 0; i--) {
+								if(arbol.getDatoPadre(i - 1) == 0 && (i - 1 != arbol.getSize() - 1)) {
+									if((arbol.getDatoLexema(i - 1).equals("Variable") || arbol.getDatoLexema(i - 1).equals("Asignacion")) && arbol.getDatoPadre(i - 1) == 0) {
+										arbol.getPadre().set(i - 1, arbol.getLastPositionNum());
+										break;
+									}
+									else if(arbol.getDatoLexema(i - 1).equals("Declaracion") && arbol.getDatoPadre(i - 1) == 0) {
+										if((arbol.getDatoLexema(i - 1).equals("Declaracion") && arbol.getDatoLexema(i - 2).equals(",") && arbol.getDatoLexema(i - 3).equals("Declaracion")) && (arbol.getDatoPadre(i - 1) == 0 && arbol.getDatoPadre(i - 2) == 0 && arbol.getDatoPadre(i - 3) == 0)) {
+											arbol.getPadre().set(i - 1, arbol.getLastPositionNum());
+											arbol.getPadre().set(i - 2, arbol.getLastPositionNum());
+											arbol.getPadre().set(i - 3, arbol.getLastPositionNum());
+											break;
+										}
+									}
+								}
+							}
+							
+							arbol.addNumero(contador);
+							arbol.addLexema(",");
+							arbol.addPadre(0);
+							contador++;
+
+							arbol.addNumero(contador);
+							arbol.addLexema("Declaracion");
+							arbol.addPadre(0);
+							contador++;
+							for(int i = arbol.getSize(); i > 0; i--) {
+								if(arbol.getDatoPadre(i - 1) == 0 && (i - 1 != arbol.getSize() - 1)) {
+									if((arbol.getDatoLexema(i - 1).equals("Variable") || arbol.getDatoLexema(i - 1).equals("Asignacion")) && arbol.getDatoPadre(i - 1) == 0) {
+										arbol.getPadre().set(i - 1, arbol.getLastPositionNum());
+										break;
+									}
+									else if(arbol.getDatoLexema(i - 1).equals("Declaracion") && arbol.getDatoPadre(i - 1) == 0) {
+										System.out.println("\nES CUANDO ENCUENTRA DECLARACIÓN EN EL CASO DE DECLARACIÓN DECLARACIÓN 2\n");
+										if((arbol.getDatoLexema(i - 1).equals("Declaracion") && arbol.getDatoLexema(i - 2).equals(",") && arbol.getDatoLexema(i - 3).equals("Declaracion")) && (arbol.getDatoPadre(i - 1) == 0 && arbol.getDatoPadre(i - 2) == 0 && arbol.getDatoPadre(i - 3) == 0)) {
+											arbol.getPadre().set(i - 1, arbol.getLastPositionNum());
+											arbol.getPadre().set(i - 2, arbol.getLastPositionNum());
+											arbol.getPadre().set(i - 3, arbol.getLastPositionNum());
+											break;
+										}
+									}
+									else
+										continue;
+								}
+							}
+							break;
+						case "Tipo Declaracion;":
+							arbol.addNumero(contador);
+							arbol.addLexema(";");
+							arbol.addPadre(0);
+							contador++;
+							
+							arbol.addNumero(contador);
+							arbol.addLexema("Declaracion");
+							arbol.addPadre(0);
+							contador++;
+							for(int i = arbol.getSize(); i > 0; i--) {
+								if(arbol.getDatoPadre(i - 1) == 0 && (i - 1 != arbol.getSize() - 1)) {
+									if((arbol.getDatoLexema(i - 1).equals("Variable") || arbol.getDatoLexema(i - 1).equals("Asignacion")) && arbol.getDatoPadre(i - 1) == 0) {
+										System.out.println("Dato número: "+ arbol.getDatoNumero(i - 1) +  ". Dato lexema: "+ arbol.getDatoLexema(i - 1) + ". Número de padre: "+ arbol.getDatoPadre(i - 1));
+										arbol.getPadre().set(i - 1, arbol.getLastPositionNum());
+										break;
+									}
+									else if(arbol.getDatoLexema(i - 1).equals("Declaracion") && arbol.getDatoPadre(i - 1) == 0) {
+										System.out.println("\nES CUANDO ENCUENTRA DECLARACION EN EL CASO DE TIPO DECLARACIÓN\n");
+										if((arbol.getDatoLexema(i - 1).equals("Declaracion") && arbol.getDatoLexema(i - 2).equals(",") && arbol.getDatoLexema(i - 3).equals("Declaracion")) && (arbol.getDatoPadre(i - 1) == 0 && arbol.getDatoPadre(i - 2) == 0 && arbol.getDatoPadre(i - 3) == 0)) {
+											arbol.getPadre().set(i - 1, arbol.getLastPositionNum());
+											arbol.getPadre().set(i - 2, arbol.getLastPositionNum());
+											arbol.getPadre().set(i - 3, arbol.getLastPositionNum());
+											break;
+										}
+									}
+									else
+										continue;
+								}
+							}
+							
+							arbol.addNumero(contador);
+							arbol.addLexema("Tipo");
+							arbol.addPadre(0);
+							contador++;
+							
+							for(int i = arbol.getSize(); i > 0; i--) {
+								if(arbol.getDatoPadre(i - 1) == 0 && !arbol.getDatoLexema(i - 1).equals(arbol.getLastPositionLex())) {
+									if(arbol.getDatoLexema(i - 1).equals("REAL") || arbol.getDatoLexema(i - 1).equals("INTEGER")) {
+										arbol.getPadre().set(i - 1, arbol.getLastPositionNum());
+										break;
+									}
+								}
+							}
+							break;
 						}
-						if(count == 1) {
-							/**QUIERE DECIR QUE HAY DOS OPCIONES DE CONTENIDO QUE SON REGLAS
-							 * PUEDE SER
-							 * 		OPCION, OPCION
-							 * 		DECLARACION, DECLARACION
-							 * 		TIPO DECLARACION;*/
-							if(iterarContenidoReglas(lexema)) {
-								switch(lexema) {
-								j
+					}
+					else if(count == 2) {
+						/**QUIERE DECIR QUE HAY DOS OPCIONES DE REGLAS
+						 * PUEDE SER
+						 * 		VARIABLE = NUMERO
+						 * 		VARIABLE = OPERACION*/ // ES AQUÍ DONDE BUSCAS EL IDENTIFICADOR 
+						switch(lexema) {
+						case "Variable = Numero":
+							arbol.addNumero(contador);
+							arbol.addLexema("Numero");
+							arbol.addPadre(0);
+							contador++;
+							
+							arbol.addNumero(contador);
+							arbol.addLexema("=");
+							arbol.addPadre(0);
+							contador++;
+							
+							arbol.addNumero(contador);
+							arbol.addLexema("Variable");
+							arbol.addPadre(0);
+							contador++;
+							break;
+							
+						case "Variable = Operacion;":
+							arbol.addNumero(contador);
+							arbol.addLexema(";");
+							arbol.addPadre(0);
+							contador++;
+							
+							arbol.addNumero(contador);
+							arbol.addLexema("Operacion");
+							arbol.addPadre(0);
+							contador++;
+							for(int i = arbol.getSize(); i > 0; i--) {
+								if(arbol.getDatoPadre(i - 1) == 0 && !arbol.getDatoLexema(i - 1).equals(arbol.getLastPositionLex())) {
+									if((arbol.getDatoLexema(i - 1).equals("Tipo Operacion") && arbol.getDatoLexema(i - 1).equals("Cuerpo Operacion")) && (arbol.getDatoPadre(i - 1) == 0 && arbol.getDatoPadre(i - 2) == 0)) {
+										arbol.getPadre().set(i - 1, arbol.getLastPositionNum());
+										arbol.getPadre().set(i - 2, arbol.getLastPositionNum());
+										break;
+									}
+								}
+							}
+							
+							arbol.addNumero(contador);
+							arbol.addLexema("=");
+							arbol.addPadre(0);
+							contador++;
+							
+							arbol.addNumero(contador);
+							arbol.addLexema("Variable");
+							arbol.addPadre(0);
+							contador++;
+							break;
+						}
+					}
+					else if(count == 3) {
+						/**QUIERE DECIR QUE HAY DOS OPCIONES DE REGLAS
+						 * PUEDE SER
+						 * 		TIPO OPERACION CUERPO OPERACION*/
+						if(lexema.equals("Tipo Operacion Cuerpo Operacion")) {
+							arbol.addNumero(contador);
+							arbol.addLexema("Cuerpo Operacion");
+							arbol.addPadre(0);
+							contador++;
+							for(int i = arbol.getSize(); i > 0; i--) {
+								if(arbol.getDatoPadre(i - 1) == 0 && !arbol.getDatoLexema(i - 1).equals(arbol.getLastPositionLex())) {
+									if((arbol.getDatoLexema(i - 1 ).equals("(") && arbol.getDatoLexema(i - 2).equals("Elementos") && arbol.getDatoLexema(i - 3).equals(")")) && (arbol.getDatoPadre(i - 1) == 0 && arbol.getDatoPadre(i - 2) == 0 && arbol.getDatoPadre(i - 3) == 0)) {
+										arbol.getPadre().set(i - 1, arbol.getLastPositionNum());
+										arbol.getPadre().set(i - 2, arbol.getLastPositionNum());
+										arbol.getPadre().set(i - 3, arbol.getLastPositionNum());
+										break;
+									}
+								}
+							}
+							
+							arbol.addNumero(contador);
+							arbol.addLexema("Tipo Operacion");
+							arbol.addPadre(0);
+							contador++;
+							for(int i = arbol.getSize(); i > 0; i--) {
+								if(arbol.getDatoPadre(i - 1) == 0 && !arbol.getDatoLexema(i - 1).equals(arbol.getLastPositionLex())) {
+									if((arbol.getDatoLexema(i - 1 ).equals("(") && arbol.getDatoLexema(i - 2).equals("Elementos") && arbol.getDatoLexema(i - 3).equals(")")) && (arbol.getDatoPadre(i - 1) == 0 && arbol.getDatoPadre(i - 2) == 0 && arbol.getDatoPadre(i - 3) == 0)) {
+										arbol.getPadre().set(i - 1, arbol.getLastPositionNum());
+										arbol.getPadre().set(i - 2, arbol.getLastPositionNum());
+										arbol.getPadre().set(i - 3, arbol.getLastPositionNum());
+										break;
+									}
 								}
 							}
 						}
-						else if(count == 2) {
-							/**QUIERE DECIR QUE HAY DOS OPCIONES DE REGLAS
-							 * PUEDE SER
-							 * 		VARIABLE = NUMERO
-							 * 		VARIABLE = OPERACION*/
-						}
-						else if(count == 3) {
-							/**QUIERE DECIR QUE HAY DOS OPCIONES DE REGLAS
-							 * PUEDE SER
-							 * 		TIPO OPERACION CUERPO OPERACION*/
-						}
 					}
-					//SE SUPONE QUE NO HAY ESPACIOS
-					else {
+				}
+				//SE SUPONE QUE NO HAY ESPACIOS
+				else {
+					switch(lexema) {
+					case "INTEGER":
+					case "REAL":
+					case "Variable":
+					case "Numero":
+						arbol.addNumero(contador);
+						arbol.addLexema(lexema);
+						arbol.addPadre(0);
+						contador++;
+						break;
+
+					case "(Variable)":
+						arbol.addNumero(contador);
+						arbol.addLexema(")");
+						arbol.addPadre(0);
+						contador++;
 						
+						arbol.addNumero(contador);
+						arbol.addLexema("Variable");
+						arbol.addPadre(0);
+						contador++;
+						
+						arbol.addNumero(contador);
+						arbol.addLexema("(");
+						arbol.addPadre(0);
+						contador++;
+						break;
+					case "Asignacion":
+						arbol.addNumero(contador);
+						arbol.addLexema(lexema);
+						arbol.addPadre(0);
+						contador++;
+						for(int i = arbol.getSize(); i > 0; i--) {
+							if(arbol.getDatoPadre(i - 1) == 0 && !arbol.getDatoLexema(i - 1).equals(arbol.getLastPositionLex())) {
+								if((arbol.getDatoLexema(i - 1 ).equals("Variable") && arbol.getDatoLexema(i - 2).equals("=") && arbol.getDatoLexema(i - 3).equals("Numero")) && (arbol.getDatoPadre(i - 1) == 0 && arbol.getDatoPadre(i - 2) == 0 && arbol.getDatoPadre(i - 3) == 0)) {
+									arbol.getPadre().set(i - 1, arbol.getLastPositionNum());
+									arbol.getPadre().set(i - 2, arbol.getLastPositionNum());
+									arbol.getPadre().set(i - 3, arbol.getLastPositionNum());
+									break;
+								}
+							}
+						}
+						break;
+
+					case "Declaracion":
+						arbol.addNumero(contador);
+						arbol.addLexema(lexema);
+						arbol.addPadre(0);
+						contador++;
+						for(int i = arbol.getSize(); i > 0; i--) {
+							if(arbol.getDatoPadre(i - 1) == 0 && (i - 1 != arbol.getSize() - 1)) {
+								System.out.println();
+								if((arbol.getDatoLexema(i - 1).equals("Variable") || arbol.getDatoLexema(i - 1).equals("Asignacion")) && arbol.getDatoPadre(i - 1) == 0) {
+									System.out.println("Dato número: "+ arbol.getDatoNumero(i - 1) +  ". Dato lexema: "+ arbol.getDatoLexema(i - 1) + ". Número de padre: "+ arbol.getDatoPadre(i - 1));
+									arbol.getPadre().set(i - 1, arbol.getLastPositionNum());
+									break;
+								}
+								else if(arbol.getDatoLexema(i - 1).equals("Declaracion")) {
+									System.out.println("\nES CUANDO ENCUENTRA DECLARACIÓN EN EL CASO DE DECLARACIÓN SOLITO\n");
+									if((arbol.getDatoLexema(i - 1).equals("Declaracion") && arbol.getDatoLexema(i - 2).equals(",") && arbol.getDatoLexema(i - 3).equals("Declaracion")) && (arbol.getDatoPadre(i - 1) == 0 && arbol.getDatoPadre(i - 2) == 0 && arbol.getDatoPadre(i - 3) == 0)) {
+										arbol.getPadre().set(i - 1, arbol.getLastPositionNum());
+										arbol.getPadre().set(i - 2, arbol.getLastPositionNum());
+										arbol.getPadre().set(i - 3, arbol.getLastPositionNum());
+										break;
+									}
+								}
+								else
+									continue;
+							}
+						}
+						break;
+
+					case "(Elementos)":
+						arbol.addNumero(contador);
+						arbol.addLexema(")");
+						arbol.addPadre(0);
+						contador++;
+						
+						arbol.addNumero(contador);
+						arbol.addLexema("Elementos");
+						arbol.addPadre(0);
+						contador++;
+						for(int i = arbol.getSize(); i > 0; i--) {
+							if(arbol.getDatoPadre(i - 1) == 0 && !arbol.getDatoLexema(i - 1).equals(arbol.getLastPositionLex())) {
+								if((arbol.getDatoLexema(i - 1 ).equals("Opcion") && arbol.getDatoLexema(i - 2).equals(",") && arbol.getDatoLexema(i - 3).equals("Opcion")) && (arbol.getDatoPadre(i - 1) == 0 && arbol.getDatoPadre(i - 2) == 0 && arbol.getDatoPadre(i - 3) == 0)) {
+									arbol.getPadre().set(i - 1, arbol.getLastPositionNum());
+									arbol.getPadre().set(i - 2, arbol.getLastPositionNum());
+									arbol.getPadre().set(i - 3, arbol.getLastPositionNum());
+									break;
+								}
+							}
+						}
+						
+						arbol.addNumero(contador);
+						arbol.addLexema("(");
+						arbol.addPadre(0);
+						contador++;
+						break;
+
+					case "ADD":
+					case "SUB":
+					case "MUL":
+					case "DIV":
+						arbol.addNumero(contador);
+						arbol.addLexema(lexema);
+						arbol.addPadre(0);
+						contador++;
+						break;
+
+					case "READ":
+					case "WRITE":
+						arbol.addNumero(contador);
+						arbol.addLexema(lexema);
+						arbol.addPadre(0);
+						contador++;
+						break;
+
+					case "Opcion":
+						arbol.addNumero(contador);
+						arbol.addLexema(lexema);
+						arbol.addPadre(0);
+						contador++;
+						for(int i = arbol.getSize(); i > 0; i--) {
+							if(arbol.getDatoPadre(i - 1) == 0 && !arbol.getDatoLexema(i - 1).equals(arbol.getLastPositionLex())) {
+								if(arbol.getDatoLexema(i - 1).equals("Factor") || arbol.getDatoLexema(i - 1).equals("Operacion")) {
+									arbol.getPadre().set(i - 1, arbol.getLastPositionNum());
+									break;
+								}
+							}
+						}
+						break;
+
+					case "Factor":
+						arbol.addNumero(contador);
+						arbol.addLexema(lexema);
+						arbol.addPadre(0);
+						contador++;
+						for(int i = arbol.getSize(); i > 0; i--) {
+							if(arbol.getDatoPadre(i - 1) == 0 && !arbol.getDatoLexema(i - 1).equals(arbol.getLastPositionLex())) {
+								if(arbol.getDatoLexema(i - 1).equals("Numero") || arbol.getDatoLexema(i - 1).equals("Variable")) {
+									arbol.getPadre().set(i - 1, arbol.getLastPositionNum());
+									break;
+								}
+							}
+						}
+						break;
 					}
 				}
 			}
 		}
+		
+		String ultimoLexema = pila.getLastPositionPila();
+		arbol.addNumero(arbol.getLastPositionNum() + 1);
+		arbol.addLexema(ultimoLexema);
+		arbol.addPadre(0);
+		String ultimaRegla = reglas.get(arbol.getLastPositionLex()).replace(" ", "");
+		for(int i = arbol.getSize(); i > 0; i--) {
+			if(ultimaRegla.isEmpty())
+				break;
+			else {
+				if(arbol.getDatoPadre(i - 1) == 0 && !arbol.getDatoLexema(i - 1).equals(arbol.getLastPositionLex())) {
+					if(reglas.get(arbol.getLastPositionLex()).indexOf(arbol.getDatoLexema(i - 1)) != -1) {
+						arbol.getPadre().set(i - 1, arbol.getLastPositionNum());
+						ultimaRegla = ultimaRegla.replace(arbol.getDatoLexema(i - 1), "");
+					}
+				}
+			}
+		}
+		System.out.println("\nNúmero\t\tLexema\t\tPadre");
+		for(int i = 0; i < arbol.getSize(); i++)
+			System.out.println(arbol.getDatoNumero(i) + "\t" + arbol.getDatoLexema(i) + "\t" + arbol.getDatoPadre(i));
+	}
 
 	//MÉTODO MAIN
 
 	public static void main(String[] args) throws IOException {
 		Main main = new Main();
 		String cadena = "BEGIN{\n"+
-				"INTEGER a1;\n" +
-				"REAL b21, b22, b23=2.5;\n" +
-				"a3=ADD(a1, a2);\n"+
-				"a2=ADD(a1, SUB(30, a3));\n"+ 
-				"b22=MUL(b21, DIV(b23, 2.5));\n"+
-				"READ(b22);\n" +
-				"WRITE(a1);\n" +
-				"}END";
+				"INTEGER a1, a2=20, a3;";
+//				"REAL b21, b22, b23=2.5;\n" +
+//				"a3=ADD(a1, a2);\n"+
+//				"a2=ADD(a1, SUB(30, a3));\n"+ 
+//				"b22=MUL(b21, DIV(b23, 2.5));\n"+
+//				"READ(b22);\n" +
+//				"WRITE(a1);\n" +
+//				"}END";
 
 		String[] lineas = cadena.split("\n");
 		int mistakes[] = new int[lineas.length];
@@ -915,8 +1350,9 @@ public class Main {
 		/** INICIO DE TODO EL ALGORITMO*/
 		boolean flag = true;
 		for(int i = 0; i < lineas.length; i++) {
-			System.out.println("\n\nLINEA A ANALIZAR: "+ lineas[i]);
+			System.out.println("\n\nLINEA A ANALIZAR: "+ lineas[i] + "\n");
 			main.pila.limpiarPila();
+			main.arbol.vaciarArbol();
 			flag = false;
 			/* En este IF queremos decir que si en el arreglo de errores, en la posición "i" hay un cero, vamos
 			 * a hacer el procedimiento del analizador sintáctico.
@@ -972,7 +1408,7 @@ public class Main {
 						break;
 					case "INTEGER":
 						if(main.declaracionFinal(lineas[i].replace(" ", ""), token)){
-							//							main.arbolDerivacion();
+							main.arbolDeTipo();
 						}
 						else
 							System.out.println("Hay un error en la línea: "+ (i + 1));
