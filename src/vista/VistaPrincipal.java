@@ -224,6 +224,7 @@ public class VistaPrincipal extends JFrame {
 				enumerarLineas();
 
 				String[] lineas = cadena.split("\n");
+				int[] errores = new int[lineas.length];
 				int cont;
 				for (int i = 0; i < lineas.length; i++) {
 					String[] tabuladores = lineas[i].split("\t");
@@ -247,6 +248,7 @@ public class VistaPrincipal extends JFrame {
 												simbolos.get(Character.toString(espacios[k].charAt(cont))).toString();
 												status="simbolo aceptado";
 												toke.add("("+cad.get(0)+" , tk_"+cad.get(0)+")");
+												errores[i] = 0;
 											} catch (Exception e) {
 												status = "Error";
 											}
@@ -278,9 +280,11 @@ public class VistaPrincipal extends JFrame {
 																	identificadores.add(cade+"\t ");
 																}
 																toke.add("("+cade+" , tk_"+cade+")");
+																errores[i] = 0;
 															}else {
 																String texto = editorPane.getText();
 																texto+="Error en la linea :"+(i+1)+"\n";
+																errores[i] = 1;
 																editorPane.setText(texto);
 															}
 														}
@@ -309,9 +313,11 @@ public class VistaPrincipal extends JFrame {
 
 															}
 															toke.add("("+cade+" , tk_"+cade+")");
+															errores[i] = 0;
 														}else {
 															String texto = editorPane.getText();
 															texto+="Error en la linea :"+(i+1)+"\n";
+															errores[i] = 1;
 															editorPane.setText(texto);
 														}
 													}
@@ -340,9 +346,11 @@ public class VistaPrincipal extends JFrame {
 
 													}
 													toke.add("("+cade+" , tk_"+cade+")");
+													errores[i] = 0;
 												}else {
 													String texto = editorPane.getText();
 													texto+="Error en la linea :"+(i+1)+"\n";
+													errores[i] = 1;
 													editorPane.setText(texto);
 
 												}
@@ -357,9 +365,7 @@ public class VistaPrincipal extends JFrame {
 					}
 				}
 
-
 				generarFichero = new EscribirFichero();
-
 
 				if(!identificadores.isEmpty()){
 
@@ -381,17 +387,18 @@ public class VistaPrincipal extends JFrame {
 
 				System.out.println(toke);
 				System.out.println(identificadores);
-			} 
-
-
-			//				
-			//				if (tokens.get("I").getToken(arreglo)) 
-			//					System.out.println("Jalo");
-			//				else 
-			//					System.out.println("No jalo");
-			//			
-
-
+				
+				
+				try {
+					analizadorSintactico(lineas, errores);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				for (Integer error: erroresDelAnalizador) {
+					editorPane.setText(editorPane.getText() + "Error sintáctico en la línea: "+ error + "\n");
+				}
+			}
 		});
 		btnAnalizar.setFont(new Font("Tahoma", Font.PLAIN, 15));
 		btnAnalizar.setBorder(UIManager.getBorder("RadioButton.border"));
@@ -514,9 +521,9 @@ public class VistaPrincipal extends JFrame {
 		/** INICIO DE TODO EL ALGORITMO*/
 		boolean flag = true;
 		for(int i = 0; i < cadena.length; i++) {
-//			System.out.println("\n\nLINEA A ANALIZAR: "+ cadena[i] + "\n");
+			cadena[i] = cadena[i].replace(" ", "").replace("\r", "").replace("\t", "");
 			pila.limpiarPila();
-			arbol.vaciarArbol();
+//			arbol.vaciarArbol();
 			flag = false;
 			/* En este IF queremos decir que si en el arreglo de errores, en la posición "i" hay un cero, vamos
 			 * a hacer el procedimiento del analizador sintáctico.
@@ -558,38 +565,38 @@ public class VistaPrincipal extends JFrame {
 						if(reglaBegin(cadena[i]))
 							arbolDerivacion();
 						else
-							erroresDelAnalizador.add(i + i);
+							erroresDelAnalizador.add(i + 1);
 						break;
 					case "}":
 						if(reglaEnd(cadena[i])) {
 							arbolDerivacion();
 						}
 						else
-							erroresDelAnalizador.add(i + i);
+							erroresDelAnalizador.add(i + 1);
 						break;
 					case "INTEGER":
 						if(declaracionFinal(cadena[i].replace(" ", ""), token))
 							arbolDeTipo();
 						else
-							erroresDelAnalizador.add(i + i);
+							erroresDelAnalizador.add(i + 1);
 						break;
 					case "REAL":
 						if(declaracionFinal(cadena[i].replace(" ", ""), token))
 							arbolDeTipo();
 						else
-							erroresDelAnalizador.add(i + i);
+							erroresDelAnalizador.add(i + 1);
 						break;
 					case "READ":
 						if(funcion(cadena[i].replace(" ", ""), token.substring(1, token.indexOf(" "))))
 							arbolDeTipo();
 						else
-							erroresDelAnalizador.add(i + i);
+							erroresDelAnalizador.add(i + 1);
 						break;
 					case "WRITE":
 						if(funcion(cadena[i].replace(" ", ""), token.substring(1, token.indexOf(" "))))
 							arbolDeTipo();
 						else
-							erroresDelAnalizador.add(i + i);
+							erroresDelAnalizador.add(i + 1);
 						break;
 					default:
 						/**PENDIENTE PARA IDENTIFICADORES*/
@@ -598,27 +605,32 @@ public class VistaPrincipal extends JFrame {
 								if(resultadoFinal(cadena[i].replace(" ", "")))
 									arbolDeTipo();
 								else
-									erroresDelAnalizador.add(i + i);
+									erroresDelAnalizador.add(i + 1);
 							}
 							else 
-								erroresDelAnalizador.add(i + i);
+								erroresDelAnalizador.add(i + 1);
 						}
 						else 
-							erroresDelAnalizador.add(i + i);
+							erroresDelAnalizador.add(i + 1);
 					}
 				}
 				else 
-					erroresDelAnalizador.add(i + i);
+					erroresDelAnalizador.add(i + 1);
 				b.close();
 			}
 			else
 				continue;
+		}
+		
+		for(int j = 0; j <arbol.getSize(); j++) {
+			generarFichero.crearListasArbolDerivacion(arbol.getDatoNumero(j) + "\t\t" + arbol.getDatoLexema(j) + "\t\t"+ arbol.getDatoPadre(j));
 		}
 	}
 
 	/**ESTA REGLA LA PUEDO REDUCIR DEMASIADO O MÁS O MENOS*/
 	public boolean reglaBegin(String linea) throws IOException {
 		//BEGIN{
+		linea.replace(" ", "");
 		pila.addPila("0");
 		pila.addCadena(linea);
 		pila.addAccion("0");		//BEGIN{			//Sustraer		//De BEGIN{				//BEGIN
@@ -673,6 +685,8 @@ public class VistaPrincipal extends JFrame {
 				}
 			}
 			else {
+				System.out.println(pila.getLastPositionCadena().length());
+				System.out.println("Última posición de la cadena:"+pila.getLastPositionCadena());
 				System.out.println("La cadena no es correcta porque aún hay más datos y debería de estar solamente el {");
 				return false;
 			}
@@ -1384,7 +1398,8 @@ public class VistaPrincipal extends JFrame {
 			j++;
 		}
 		if(reglas.get("Cuerpo Funcion").equals(cadenaFinal)) {
-			pila.addPila(pila.getLastPositionPila().replace(pila.getLastPositionPila().substring("Tipo Funcion".length() + 1), "Cuerpo Funcion;"));
+			pila.addPila(pila.getLastPositionPila().replace(pila.getLastPositionPila().substring("Tipo Funcion".length() + 1), "Cuerpo Funcion"+ pila.getLastPositionPila().substring(pila.getLastPositionPila().indexOf(tokenAux.substring(1, tokenAux.indexOf(" "))) + tokenAux.substring(1, tokenAux.indexOf(" ")).length())));
+			System.out.println("PILA ULTIMA POSICION: "+ pila.getLastPositionPila());
 			pila.addCadena("$");
 			pila.addAccion("Cuerpo Funcion -> "+ cadenaFinal);
 			return true;
@@ -1405,12 +1420,14 @@ public class VistaPrincipal extends JFrame {
 					lexema = lexema.replace(" ", "");
 					String aux = "";
 					do {
+						//INVERTIMOS LA PILA DE BEGIN{ -> {BEGIN
 						String newToken = buscarListaToken(lexema);
 						aux = newToken + aux;
 						lexema = lexema.replace(newToken, "");
 					}while(!lexema.isEmpty());
 					int i = 1;
 					do {
+						//AGREGAMOS AL ÁRBOL
 						arbol.addNumero(i);
 						String newToken = buscarListaToken(aux);
 						arbol.addLexema(newToken);
@@ -1424,19 +1441,22 @@ public class VistaPrincipal extends JFrame {
 				continue;
 		}
 		String ultimoLexema = pila.getLastPositionPila();
+		//AQUÍ METEMOS LA ÚLTIMA REGLA QUE SE ENCUENTRA EN LA PILA "INICIO"
 		arbol.addNumero(arbol.getLastPositionNum() + 1);
 		arbol.addLexema(ultimoLexema);
 		arbol.addPadre(0);
 		for(int i = arbol.getSize(); i > 0; i--) {
 			if(arbol.getDatoPadre(i - 1) == 0 && !arbol.getDatoLexema(i - 1).equals(arbol.getLastPositionLex())) {
+								//INICIO -> BEGIN{				//EN EL LEXEMA UNA POSICIÓN ANTERIOR 	"INICIO"	"BEGIN"
 				if(reglas.get(arbol.getLastPositionLex()).indexOf(arbol.getDatoLexema(i - 1)) != -1) {
 					arbol.getPadre().set(i - 1, arbol.getLastPositionNum());
 				}
 			}
 		}
-		System.out.println("Número\tLexema\tPadre");
-		for(int i = 0; i < arbol.getSize(); i++)
-			System.out.println(arbol.getDatoNumero(i) + "\t" + arbol.getDatoLexema(i) + "\t" + arbol.getDatoPadre(i));
+//		System.out.println("Número\tLexema\tPadre");
+		//IMPRIMIMOS
+//		for(int i = 0; i < arbol.getSize(); i++)
+//			System.out.println(arbol.getDatoNumero(i) + "\t" + arbol.getDatoLexema(i) + "\t" + arbol.getDatoPadre(i));
 	}
 
 	//Otro método
@@ -1495,6 +1515,7 @@ public class VistaPrincipal extends JFrame {
 							arbol.addLexema("Cuerpo Operacion");
 							arbol.addPadre(0);
 							contador++;
+							//ITERAR DE FORMA CONTRARIA
 							for(int i = arbol.getSize(); i > 0; i--) {
 								if(arbol.getDatoPadre(i - 1) == 0) {
 									if((arbol.getDatoLexema(i - 1 ).equals("(") && arbol.getDatoLexema(i - 2).equals("Elementos") && arbol.getDatoLexema(i - 3).equals(")")) && (arbol.getDatoPadre(i - 1) == 0 && arbol.getDatoPadre(i - 2) == 0 && arbol.getDatoPadre(i - 3) == 0)) {
@@ -1552,6 +1573,9 @@ public class VistaPrincipal extends JFrame {
 								}
 							}
 							break;
+							//DECLARACION
+							//,
+							//DECLARACION
 						case "Declaracion, Declaracion":
 							arbol.addNumero(contador);
 							arbol.addLexema("Declaracion");
@@ -1590,7 +1614,6 @@ public class VistaPrincipal extends JFrame {
 										break;
 									}
 									else if(arbol.getDatoLexema(i - 1).equals("Declaracion") && arbol.getDatoPadre(i - 1) == 0) {
-										System.out.println("\nES CUANDO ENCUENTRA DECLARACIÓN EN EL CASO DE DECLARACIÓN DECLARACIÓN 2\n");
 										if((arbol.getDatoLexema(i - 1).equals("Declaracion") && arbol.getDatoLexema(i - 2).equals(",") && arbol.getDatoLexema(i - 3).equals("Declaracion")) && (arbol.getDatoPadre(i - 1) == 0 && arbol.getDatoPadre(i - 2) == 0 && arbol.getDatoPadre(i - 3) == 0)) {
 											arbol.getPadre().set(i - 1, arbol.getLastPositionNum());
 											arbol.getPadre().set(i - 2, arbol.getLastPositionNum());
@@ -1616,12 +1639,10 @@ public class VistaPrincipal extends JFrame {
 							for(int i = arbol.getSize(); i > 0; i--) {
 								if(arbol.getDatoPadre(i - 1) == 0 && (i - 1 != arbol.getSize() - 1)) {
 									if((arbol.getDatoLexema(i - 1).equals("Variable") || arbol.getDatoLexema(i - 1).equals("Asignacion")) && arbol.getDatoPadre(i - 1) == 0) {
-										System.out.println("Dato número: "+ arbol.getDatoNumero(i - 1) +  ". Dato lexema: "+ arbol.getDatoLexema(i - 1) + ". Número de padre: "+ arbol.getDatoPadre(i - 1));
 										arbol.getPadre().set(i - 1, arbol.getLastPositionNum());
 										break;
 									}
 									else if(arbol.getDatoLexema(i - 1).equals("Declaracion") && arbol.getDatoPadre(i - 1) == 0) {
-										System.out.println("\nES CUANDO ENCUENTRA DECLARACION EN EL CASO DE TIPO DECLARACIÓN\n");
 										if((arbol.getDatoLexema(i - 1).equals("Declaracion") && arbol.getDatoLexema(i - 2).equals(",") && arbol.getDatoLexema(i - 3).equals("Declaracion")) && (arbol.getDatoPadre(i - 1) == 0 && arbol.getDatoPadre(i - 2) == 0 && arbol.getDatoPadre(i - 3) == 0)) {
 											arbol.getPadre().set(i - 1, arbol.getLastPositionNum());
 											arbol.getPadre().set(i - 2, arbol.getLastPositionNum());
@@ -1674,7 +1695,6 @@ public class VistaPrincipal extends JFrame {
 							break;
 
 						case "Variable = Operacion;":
-							System.out.println("Entra a variable = operacion");
 							arbol.addNumero(contador);
 							arbol.addLexema(";");
 							arbol.addPadre(0);
@@ -1733,6 +1753,41 @@ public class VistaPrincipal extends JFrame {
 							for(int i = arbol.getSize(); i > 0; i--) {
 								if(arbol.getDatoPadre(i - 1) == 0) {
 									if(arbol.getDatoLexema(i - 1).equals("ADD") || arbol.getDatoLexema(i - 1).equals("SUB") || arbol.getDatoLexema(i - 1).equals("MUL") || arbol.getDatoLexema(i - 1).equals("DIV")) {
+										arbol.getPadre().set(i - 1, arbol.getLastPositionNum());
+										break;
+									}
+								}
+							}
+						}
+						
+						else if(lexema.equals("Tipo Funcion Cuerpo Funcion;")) {
+							arbol.addNumero(contador);
+							arbol.addLexema(";");
+							arbol.addPadre(0);
+							contador++;
+							
+							arbol.addNumero(contador);
+							arbol.addLexema("Cuerpo Funcion");
+							arbol.addPadre(0);
+							contador++;
+							for(int i = arbol.getSize(); i > 0; i--) {
+								if(arbol.getDatoPadre(i - 1) == 0 && !arbol.getDatoLexema(i - 1).equals(arbol.getLastPositionLex())) {
+									if((arbol.getDatoLexema(i - 1 ).equals("(") && arbol.getDatoLexema(i - 2).equals("Variable") && arbol.getDatoLexema(i - 3).equals(")")) && (arbol.getDatoPadre(i - 1) == 0 && arbol.getDatoPadre(i - 2) == 0 && arbol.getDatoPadre(i - 3) == 0)) {
+										arbol.getPadre().set(i - 1, arbol.getLastPositionNum());
+										arbol.getPadre().set(i - 2, arbol.getLastPositionNum());
+										arbol.getPadre().set(i - 3, arbol.getLastPositionNum());
+										break;
+									}
+								}
+							}
+							
+							arbol.addNumero(contador);
+							arbol.addLexema("Tipo Funcion");
+							arbol.addPadre(0);
+							contador++;
+							for(int i = arbol.getSize(); i > 0; i--) {
+								if(arbol.getDatoPadre(i - 1) == 0 && !arbol.getDatoLexema(i - 1).equals(arbol.getLastPositionLex())) {
+									if(arbol.getDatoLexema(i - 1 ).equals("READ") || arbol.getDatoLexema(i - 1 ).equals("WRITE")) {
 										arbol.getPadre().set(i - 1, arbol.getLastPositionNum());
 										break;
 									}
@@ -1891,26 +1946,47 @@ public class VistaPrincipal extends JFrame {
 			}
 		}
 
-		String ultimoLexema = pila.getLastPositionPila();
-		arbol.addNumero(arbol.getLastPositionNum() + 1);
-		arbol.addLexema(ultimoLexema);
-		arbol.addPadre(0);
-		String ultimaRegla = reglas.get(arbol.getLastPositionLex()).replace(" ", "");
-		for(int i = arbol.getSize(); i > 0; i--) {
-			if(ultimaRegla.isEmpty())
-				break;
-			else {
-				if(arbol.getDatoPadre(i - 1) == 0 && !arbol.getDatoLexema(i - 1).equals(arbol.getLastPositionLex())) {
-					if(reglas.get(arbol.getLastPositionLex()).indexOf(arbol.getDatoLexema(i - 1)) != -1) {
-						arbol.getPadre().set(i - 1, arbol.getLastPositionNum());
-						ultimaRegla = ultimaRegla.replace(arbol.getDatoLexema(i - 1), "");
+		if(pila.getDatoPila(1).equals("READ") || pila.getDatoPila(1).equals("WRITE")) {
+			String ultimoLexema = pila.getLastPositionPila();
+			arbol.addNumero(arbol.getLastPositionNum() + 1);
+			arbol.addLexema(ultimoLexema);
+			arbol.addPadre(0);
+			String ultimaRegla = reglas.get(arbol.getLastPositionLex()).replace(" ", "");
+			for(int i = arbol.getSize(); i > 0; i--) {
+				if(ultimaRegla.isEmpty())
+					break;
+				else {
+					if(arbol.getDatoPadre(i - 1) == 0 && !arbol.getDatoLexema(i - 1).equals(arbol.getLastPositionLex())) {
+						if(reglas.get(arbol.getLastPositionLex()+"1").indexOf(arbol.getDatoLexema(i - 1)) != -1) {
+							arbol.getPadre().set(i - 1, arbol.getLastPositionNum());
+							ultimaRegla = ultimaRegla.replace(arbol.getDatoLexema(i - 1), "");
+						}
 					}
 				}
 			}
 		}
-		System.out.println("\nNúmero\t\tLexema\t\tPadre");
-		for(int i = 0; i < arbol.getSize(); i++)
-			System.out.println(arbol.getDatoNumero(i) + "\t" + arbol.getDatoLexema(i) + "\t" + arbol.getDatoPadre(i));
+		else {
+			String ultimoLexema = pila.getLastPositionPila();
+			arbol.addNumero(arbol.getLastPositionNum() + 1);
+			arbol.addLexema(ultimoLexema);
+			arbol.addPadre(0);
+			String ultimaRegla = reglas.get(arbol.getLastPositionLex()).replace(" ", "");
+			for(int i = arbol.getSize(); i > 0; i--) {
+				if(ultimaRegla.isEmpty())
+					break;
+				else {
+					if(arbol.getDatoPadre(i - 1) == 0 && !arbol.getDatoLexema(i - 1).equals(arbol.getLastPositionLex())) {
+						if(reglas.get(arbol.getLastPositionLex()).indexOf(arbol.getDatoLexema(i - 1)) != -1) {
+							arbol.getPadre().set(i - 1, arbol.getLastPositionNum());
+							ultimaRegla = ultimaRegla.replace(arbol.getDatoLexema(i - 1), "");
+						}
+					}
+				}
+			}
+		}
+//		System.out.println("\nNúmero\t\tLexema\t\tPadre");
+//		for(int i = 0; i < arbol.getSize(); i++)
+//			System.out.println(arbol.getDatoNumero(i) + "\t" + arbol.getDatoLexema(i) + "\t" + arbol.getDatoPadre(i));
 	}
 
 	public void llenarReglas() {
@@ -1940,6 +2016,8 @@ public class VistaPrincipal extends JFrame {
 		reglas.put("Tipo REAL", "REAL");
 		reglas.put("Factor num", "Numero");
 		reglas.put("Factor var", "Variable");
+		reglas.put("Funcion1", "Tipo Funcion Cuerpo Funcion;");
+		//CREO QUE CON ESTO YA QUEDÓ
 	}
 
 	/**ITERADOR DE REGLAS*/

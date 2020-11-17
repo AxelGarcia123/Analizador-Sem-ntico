@@ -63,7 +63,7 @@ public class EscribirFichero {
 		}
 	}
 
-	public  void crearListasId(String token){	
+	public  void crearListasId(String token){
 		try {
 			FileWriter escritura = new FileWriter("src\\ficheros\\Identificador.txt", true);
 			BufferedWriter buffer = new BufferedWriter(escritura);
@@ -95,7 +95,23 @@ public class EscribirFichero {
 		}
 		return fichero;
 	}
+	
+	public String crearListasArbolDerivacion(String token){
+		String fichero = "src\\ficheros\\arbolDerivacion.txt";
+		try {
+			FileWriter escritura = new FileWriter(fichero, true);
+			BufferedWriter buffer = new BufferedWriter(escritura);
+			buffer.write(token);
+			buffer.newLine();
+			buffer.flush();
+			escritura.close();
 
+		}
+		catch (IOException e) {
+			e.printStackTrace();
+		}
+		return fichero;
+	}
 
 	public static String fechaHora(){
 		Calendar c =  Calendar.getInstance();

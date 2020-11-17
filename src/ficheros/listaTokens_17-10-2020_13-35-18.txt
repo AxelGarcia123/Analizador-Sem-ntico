@@ -1,0 +1,4 @@
+(WRITE , tk_WRITE)
+(( , tk_()
+(a2 , tk_a2)
+() , tk_))

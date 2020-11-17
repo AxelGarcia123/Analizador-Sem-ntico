@@ -1324,11 +1324,11 @@ public class Main {
 	public static void main(String[] args) throws IOException {
 		Main main = new Main();
 		String cadena = //"BEGIN{\n"+
-//				"INTEGER a1, a2=20, a3;\n"+
+				"INTEGER a1, a2=20, a3;";
 //				"REAL b21, b22, b23=2.5;";
 //				"a3=ADD(a1, a2);";
 //				"a2=ADD(a1, SUB(30, a3));";
-				"b22=MUL(b21, DIV(b23, 2.5));";
+//				"b22=MUL(b21, DIV(b23, 2.5));";
 //				"READ(b22);\n" +
 //				"WRITE(a1);\n" +
 //				"}END";

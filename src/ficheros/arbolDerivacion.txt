@@ -1,0 +1,150 @@
+1		{		3
+2		BEGIN		3
+3		Inicio		0
+1		INTEGER		16
+2		Variable		13
+3		Numero		7
+4		=		7
+5		Variable		7
+6		Variable		10
+7		Asignacion		8
+8		Declaracion		11
+9		,		11
+10		Declaracion		11
+11		Declaracion		15
+12		,		15
+13		Declaracion		15
+14		;		17
+15		Declaracion		17
+16		Tipo		17
+17		Declaracion Final		0
+1		REAL		16
+2		Variable		0
+3		Variable		9
+4		Numero		0
+5		=		0
+6		Variable		7
+7		Declaracion		13
+8		,		13
+9		Declaracion		13
+10		Asignacion		11
+11		Declaracion		15
+12		,		15
+13		Declaracion		15
+14		;		17
+15		Declaracion		17
+16		Tipo		17
+17		Declaracion Final		0
+1		READ		7
+2		)		6
+3		Variable		6
+4		(		6
+5		;		8
+6		Cuerpo Funcion		8
+7		Tipo Funcion		8
+8		Funcion		0
+1		READ		7
+2		)		6
+3		Variable		6
+4		(		6
+5		;		8
+6		Cuerpo Funcion		8
+7		Tipo Funcion		8
+8		Funcion		0
+1		ADD		13
+2		Variable		3
+3		Factor		8
+4		Variable		5
+5		Factor		6
+6		Opcion		10
+7		,		10
+8		Opcion		10
+9		)		12
+10		Elementos		12
+11		(		12
+12		Cuerpo Operacion		15
+13		Tipo Operacion		15
+14		;		18
+15		Operacion		18
+16		=		18
+17		Variable		18
+18		Resultado Final		0
+1		ADD		25
+2		Variable		3
+3		Factor		17
+4		SUB		16
+5		Numero		6
+6		Factor		11
+7		Variable		8
+8		Factor		9
+9		Opcion		13
+10		,		13
+11		Opcion		13
+12		)		15
+13		Elementos		15
+14		(		15
+15		Cuerpo Operacion		0
+16		Tipo Operacion		0
+17		Opcion		0
+18		Opcion		22
+19		,		22
+20		Opcion		22
+21		)		24
+22		Elementos		24
+23		(		24
+24		Cuerpo Operacion		27
+25		Tipo Operacion		27
+26		;		30
+27		Operacion		30
+28		=		30
+29		Variable		30
+30		Resultado Final		0
+1		MUL		25
+2		Variable		3
+3		Factor		17
+4		DIV		16
+5		Variable		6
+6		Factor		11
+7		Numero		8
+8		Factor		9
+9		Opcion		13
+10		,		13
+11		Opcion		13
+12		)		15
+13		Elementos		15
+14		(		15
+15		Cuerpo Operacion		0
+16		Tipo Operacion		0
+17		Opcion		0
+18		Opcion		22
+19		,		22
+20		Opcion		22
+21		)		24
+22		Elementos		24
+23		(		24
+24		Cuerpo Operacion		27
+25		Tipo Operacion		27
+26		;		30
+27		Operacion		30
+28		=		30
+29		Variable		30
+30		Resultado Final		0
+1		WRITE		7
+2		)		6
+3		Variable		6
+4		(		6
+5		;		8
+6		Cuerpo Funcion		8
+7		Tipo Funcion		8
+8		Funcion		0
+1		WRITE		7
+2		)		6
+3		Variable		6
+4		(		6
+5		;		8
+6		Cuerpo Funcion		8
+7		Tipo Funcion		8
+8		Funcion		0
+1		END		3
+2		}		3
+3		Fin		0
