@@ -887,7 +887,7 @@ public class Main {
 							arbol.addPadre(0);
 							contador++;
 							for(int i = arbol.getSize(); i > 0; i--) {
-								if(arbol.getDatoPadre(i - 1) == 0 && !arbol.getDatoLexema(i - 1).equals(arbol.getLastPositionLex())) {
+								if(arbol.getDatoPadre(i - 1) == 0) {
 									if(arbol.getDatoLexema(i - 1).equals("ADD") || arbol.getDatoLexema(i - 1).equals("SUB") || arbol.getDatoLexema(i - 1).equals("MUL") || arbol.getDatoLexema(i - 1).equals("DIV")) {
 										arbol.getPadre().set(i - 1, arbol.getLastPositionNum());
 										break;
@@ -902,7 +902,7 @@ public class Main {
 							arbol.addPadre(0);
 							contador++;
 							for(int i = arbol.getSize(); i > 0; i--) {
-								if(arbol.getDatoPadre(i - 1) == 0 && !arbol.getDatoLexema(i - 1).equals(arbol.getLastPositionLex())) {
+								if(arbol.getDatoPadre(i - 1) == 0) {
 									if((arbol.getDatoLexema(i - 1 ).equals("(") && arbol.getDatoLexema(i - 2).equals("Elementos") && arbol.getDatoLexema(i - 3).equals(")")) && (arbol.getDatoPadre(i - 1) == 0 && arbol.getDatoPadre(i - 2) == 0 && arbol.getDatoPadre(i - 3) == 0)) {
 										arbol.getPadre().set(i - 1, arbol.getLastPositionNum());
 										arbol.getPadre().set(i - 2, arbol.getLastPositionNum());
@@ -933,7 +933,7 @@ public class Main {
 							arbol.addPadre(0);
 							contador++;
 							for(int i = arbol.getSize(); i > 0; i--) {
-								if(arbol.getDatoPadre(i - 1) == 0 && !arbol.getDatoLexema(i - 1).equals(arbol.getLastPositionLex())) {
+								if(arbol.getDatoPadre(i - 1) == 0) {
 									if(arbol.getDatoLexema(i - 1).equals("Factor") || arbol.getDatoLexema(i - 1).equals("Operacion")) {
 										arbol.getPadre().set(i - 1, arbol.getLastPositionNum());
 										break;
@@ -1080,6 +1080,7 @@ public class Main {
 							break;
 							
 						case "Variable = Operacion;":
+							System.out.println("Entra a variable = operacion");
 							arbol.addNumero(contador);
 							arbol.addLexema(";");
 							arbol.addPadre(0);
@@ -1090,8 +1091,8 @@ public class Main {
 							arbol.addPadre(0);
 							contador++;
 							for(int i = arbol.getSize(); i > 0; i--) {
-								if(arbol.getDatoPadre(i - 1) == 0 && !arbol.getDatoLexema(i - 1).equals(arbol.getLastPositionLex())) {
-									if((arbol.getDatoLexema(i - 1).equals("Tipo Operacion") && arbol.getDatoLexema(i - 1).equals("Cuerpo Operacion")) && (arbol.getDatoPadre(i - 1) == 0 && arbol.getDatoPadre(i - 2) == 0)) {
+								if(arbol.getDatoPadre(i - 1) == 0) {
+									if((arbol.getDatoLexema(i - 1).equals("Tipo Operacion") && arbol.getDatoLexema(i - 2).equals("Cuerpo Operacion")) && (arbol.getDatoPadre(i - 1) == 0 && arbol.getDatoPadre(i - 2) == 0)) {
 										arbol.getPadre().set(i - 1, arbol.getLastPositionNum());
 										arbol.getPadre().set(i - 2, arbol.getLastPositionNum());
 										break;
@@ -1136,11 +1137,9 @@ public class Main {
 							arbol.addPadre(0);
 							contador++;
 							for(int i = arbol.getSize(); i > 0; i--) {
-								if(arbol.getDatoPadre(i - 1) == 0 && !arbol.getDatoLexema(i - 1).equals(arbol.getLastPositionLex())) {
-									if((arbol.getDatoLexema(i - 1 ).equals("(") && arbol.getDatoLexema(i - 2).equals("Elementos") && arbol.getDatoLexema(i - 3).equals(")")) && (arbol.getDatoPadre(i - 1) == 0 && arbol.getDatoPadre(i - 2) == 0 && arbol.getDatoPadre(i - 3) == 0)) {
+								if(arbol.getDatoPadre(i - 1) == 0) {
+									if(arbol.getDatoLexema(i - 1).equals("ADD") || arbol.getDatoLexema(i - 1).equals("SUB") || arbol.getDatoLexema(i - 1).equals("MUL") || arbol.getDatoLexema(i - 1).equals("DIV")) {
 										arbol.getPadre().set(i - 1, arbol.getLastPositionNum());
-										arbol.getPadre().set(i - 2, arbol.getLastPositionNum());
-										arbol.getPadre().set(i - 3, arbol.getLastPositionNum());
 										break;
 									}
 								}
@@ -1201,14 +1200,11 @@ public class Main {
 						contador++;
 						for(int i = arbol.getSize(); i > 0; i--) {
 							if(arbol.getDatoPadre(i - 1) == 0 && (i - 1 != arbol.getSize() - 1)) {
-								System.out.println();
 								if((arbol.getDatoLexema(i - 1).equals("Variable") || arbol.getDatoLexema(i - 1).equals("Asignacion")) && arbol.getDatoPadre(i - 1) == 0) {
-									System.out.println("Dato número: "+ arbol.getDatoNumero(i - 1) +  ". Dato lexema: "+ arbol.getDatoLexema(i - 1) + ". Número de padre: "+ arbol.getDatoPadre(i - 1));
 									arbol.getPadre().set(i - 1, arbol.getLastPositionNum());
 									break;
 								}
 								else if(arbol.getDatoLexema(i - 1).equals("Declaracion")) {
-									System.out.println("\nES CUANDO ENCUENTRA DECLARACIÓN EN EL CASO DE DECLARACIÓN SOLITO\n");
 									if((arbol.getDatoLexema(i - 1).equals("Declaracion") && arbol.getDatoLexema(i - 2).equals(",") && arbol.getDatoLexema(i - 3).equals("Declaracion")) && (arbol.getDatoPadre(i - 1) == 0 && arbol.getDatoPadre(i - 2) == 0 && arbol.getDatoPadre(i - 3) == 0)) {
 										arbol.getPadre().set(i - 1, arbol.getLastPositionNum());
 										arbol.getPadre().set(i - 2, arbol.getLastPositionNum());
@@ -1327,12 +1323,12 @@ public class Main {
 
 	public static void main(String[] args) throws IOException {
 		Main main = new Main();
-		String cadena = "BEGIN{\n"+
-				"INTEGER a1, a2=20, a3;";
-//				"REAL b21, b22, b23=2.5;\n" +
-//				"a3=ADD(a1, a2);\n"+
-//				"a2=ADD(a1, SUB(30, a3));\n"+ 
-//				"b22=MUL(b21, DIV(b23, 2.5));\n"+
+		String cadena = //"BEGIN{\n"+
+//				"INTEGER a1, a2=20, a3;\n"+
+//				"REAL b21, b22, b23=2.5;";
+//				"a3=ADD(a1, a2);";
+//				"a2=ADD(a1, SUB(30, a3));";
+				"b22=MUL(b21, DIV(b23, 2.5));";
 //				"READ(b22);\n" +
 //				"WRITE(a1);\n" +
 //				"}END";
@@ -1394,12 +1390,11 @@ public class Main {
 						if(main.reglaBegin(lineas[i]))
 							main.arbolDerivacion();
 						else
-							//METER LOS ERRORES EN UN ARREGLO "i"
 							System.out.println("Hay un error en la línea: "+ (i + 1));
 						break;
 					case "}":
 						if(main.reglaEnd(lineas[i])) {
-							System.out.println("La cadena está bien");
+							main.arbolDerivacion();
 						}
 						else {
 							System.out.println("Está mal");
@@ -1414,19 +1409,31 @@ public class Main {
 							System.out.println("Hay un error en la línea: "+ (i + 1));
 						break;
 					case "REAL":
-						flag = main.declaracionFinal(lineas[i].replace(" ", ""), token);
+						if(main.declaracionFinal(lineas[i].replace(" ", ""), token))
+							main.arbolDeTipo();
+						else
+							System.out.println("Hay un error en la línea: "+ (i + 1));
 						break;
 					case "READ":
-						flag = main.funcion(lineas[i].replace(" ", ""), token.substring(1, token.indexOf(" ")));
+						if(main.funcion(lineas[i].replace(" ", ""), token.substring(1, token.indexOf(" "))))
+							main.arbolDeTipo();
+						else
+							System.out.println("Hay un error en la línea: "+ (i + 1));
 						break;
 					case "WRITE":
-						flag = main.funcion(lineas[i].replace(" ", ""), token.substring(1, token.indexOf(" ")));
+						if(main.funcion(lineas[i].replace(" ", ""), token.substring(1, token.indexOf(" "))))
+							main.arbolDeTipo();
+						else
+							System.out.println("Hay un error en la línea: "+ (i + 1));
 						break;
 					default:
 						/**PENDIENTE PARA IDENTIFICADORES*/
 						if(main.revisarArchivos("src\\ficheros\\identificador.txt", token.substring(1, token.indexOf(" ")))) {
 							if(lineas[i].charAt(token.substring(1, token.indexOf(" ")).length()) == '='){
-								flag = main.resultadoFinal(lineas[i].replace(" ", ""));
+								if(main.resultadoFinal(lineas[i].replace(" ", "")))
+									main.arbolDeTipo();
+								else
+									System.out.println("Hay un error en la línea: "+ (i + 1));
 							}
 							else {
 								flag = false;
@@ -1443,9 +1450,6 @@ public class Main {
 					System.out.println("Hay un error en la línea " + i);
 				}
 				b.close();
-				if(flag) {
-					System.out.println("Hay un error en la línea " + i);
-				}
 			}
 			else
 				continue;

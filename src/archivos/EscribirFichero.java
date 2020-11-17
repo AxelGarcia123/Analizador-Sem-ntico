@@ -79,9 +79,10 @@ public class EscribirFichero {
 		}
 	}
 
-	public  void crearListasTokens(String token){	
+	public String crearListasTokens(String token){	
+		String fichero = "src\\ficheros\\listaTokens_"+fechaHora()+".txt";
 		try {
-			FileWriter escritura = new FileWriter("src\\ficheros\\listaTokens_"+fechaHora()+".txt", true);
+			FileWriter escritura = new FileWriter(fichero, true);
 			BufferedWriter buffer = new BufferedWriter(escritura);
 			buffer.write(token);
 			buffer.newLine();
@@ -92,6 +93,7 @@ public class EscribirFichero {
 		catch (IOException e) {
 			e.printStackTrace();
 		}
+		return fichero;
 	}
 
 
