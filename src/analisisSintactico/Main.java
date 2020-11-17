@@ -85,7 +85,7 @@ public class Main {
 			return false;
 		}
 	}
-	
+
 	/**PILA		CADENA		ACCION
 	 * 			}END				
 	 * }		END			LLEVAR A PILA
@@ -293,10 +293,14 @@ public class Main {
 				aux = "";
 			}
 		}
-		if(pila.getLastPositionPila().equals("Tipo Declaracion"))
-			return true;
-		else 
-			return declaracion();
+		if(pila.getLastPositionPila().contains(";")) {
+			if(pila.getLastPositionPila().equals("Tipo Declaracion"))
+				return true;
+			else 
+				return declaracion();
+		}
+		return
+				false;
 	}
 
 	public boolean asignacion(String linea) throws IOException {
@@ -448,8 +452,9 @@ public class Main {
 				pila.addAccion("Tipo Operacion -> "+ tokenAux.substring(1, tokenAux.indexOf(" ")));
 				if(linea.charAt(tokenAux.substring(1, tokenAux.indexOf(" ")).length()) == '(') {
 					String cuerpoOperacion = linea.substring(tokenAux.substring(1, tokenAux.indexOf(" ")).length() + 1);
-					if(cuerpoOperacion(cuerpoOperacion))
+					if(cuerpoOperacion(cuerpoOperacion)) {
 						reglas();
+					}
 					else
 						return false;
 				}
@@ -467,69 +472,42 @@ public class Main {
 
 	/**MÉTODO DE LA >>"REGLA CUERPO OPERACIÓN"<<*/
 	public boolean cuerpoOperacion(String cuerpo) throws IOException {
-		String tokenAux = "";
-		FileReader f = new FileReader("src\\ficheros\\listaTokens_8-10-2020_21-17-25.txt");
-		BufferedReader b = new BufferedReader(f);
-		boolean flag = true;
-		while((tokenAux = b.readLine()) != null) {
-			for(int i = 0; i < cuerpo.length(); i++) {
-				if(cuerpo.charAt(i) == tokenAux.charAt(i + 1)) {
-					flag = true;
-				}
-				else {
-					if(tokenAux.charAt(i + 1) == ' ') {
+		if(cuerpo.equals("Opcion));") || cuerpo.equals("Opcion);"))
+			return true;
+		else if(cuerpo.contains("Opcion),"))
+			return cuerpoOperacion(cuerpo.substring(cuerpo.indexOf("Opcion),") + "Opcion),".length() + 1));
+		else {
+			String tokenAux = "";
+			FileReader f = new FileReader("src\\ficheros\\listaTokens_8-10-2020_21-17-25.txt");
+			BufferedReader b = new BufferedReader(f);
+			boolean flag = true;
+			while((tokenAux = b.readLine()) != null) {
+				for(int i = 0; i < cuerpo.length(); i++) {
+					if(cuerpo.charAt(i) == tokenAux.charAt(i + 1)) {
 						flag = true;
-						break;
 					}
 					else {
-						flag = false;
-						break;
+						if(tokenAux.charAt(i + 1) == ' ') {
+							flag = true;
+							break;
+						}
+						else {
+							flag = false;
+							break;
+						}
 					}
 				}
+				if(flag)
+					break;
+				else
+					continue;
 			}
-			if(flag)
-				break;
-			else
-				continue;
-		}
-		if(flag) {
-			if(revisarArchivos("src\\ficheros\\identificador.txt", tokenAux.substring(1, tokenAux.indexOf(" ")))) {
-				pila.addPila(pila.getLastPositionPila().substring(0, pila.getLastPositionPila().indexOf(tokenAux.substring(1, tokenAux.indexOf(" ")))) + 
-						"Factor" + pila.getLastPositionPila().substring(pila.getLastPositionPila().indexOf(tokenAux.substring(1, tokenAux.indexOf(" "))) + tokenAux.substring(1, tokenAux.indexOf(" ")).length()));
-				pila.addCadena("$");
-				pila.addAccion("Factor -> Variable");
-				if(iterarContenidoReglas("Factor")) {
-					pila.addPila(pila.getLastPositionPila().substring(0, pila.getLastPositionPila().indexOf("Factor")) + "Opcion" + pila.getLastPositionPila().substring(pila.getLastPositionPila().indexOf("Factor") + "Factor".length()));
-					pila.addCadena("$");
-					pila.addAccion("Opcion -> Factor");
-					if(pila.getLastPositionPila().substring(pila.getLastPositionPila().indexOf("Opcion") + "Opcion".length(), (pila.getLastPositionPila().indexOf("Opcion") + "Opcion".length() + 1)).equals(",")) {
-						String newWord = "";
-						try {
-							newWord = pila.getLastPositionPila().substring(pila.getLastPositionPila().indexOf("Opcion") + "Opcion".length() + 2).substring(0, "Tipo Operacion".length());
-						} catch (StringIndexOutOfBoundsException e) {
-							cuerpoOperacion(pila.getLastPositionPila().substring(pila.getLastPositionPila().indexOf("Opcion") + "Opcion".length() + 2));
-						}
-						if(newWord.equals("Tipo Operacion")) {
-							newWord = pila.getLastPositionPila().substring(pila.getLastPositionPila().indexOf("Opcion") + "Opcion".length() + 2).substring("Tipo Operacion".length());
-							cuerpoOperacion(newWord.substring(newWord.indexOf("Opcion") + "Opcion".length() + 2));
-						}
-						else
-							cuerpoOperacion(pila.getLastPositionPila().substring(pila.getLastPositionPila().indexOf("Opcion") + "Opcion".length() + 2));
-					}
-				}
-				else {
-					//ES CUANDO NO HA ENCONTRADO UN FACTOR
-				}
-			}
-			else if(revisarArchivos("src\\recursos\\PALABRASRESERVADAS.txt", tokenAux.substring(1, tokenAux.indexOf(" ")))) {
-				operacion(pila.getLastPositionPila().substring(pila.getLastPositionPila().indexOf(tokenAux.substring(1, tokenAux.indexOf(" ")))));
-			}
-			else {
-				if(isNumeric(tokenAux.substring(1, tokenAux.indexOf(" "))) || isDecimal(tokenAux.substring(1, tokenAux.indexOf(" ")))) {
+			if(flag) {
+				if(revisarArchivos("src\\ficheros\\identificador.txt", tokenAux.substring(1, tokenAux.indexOf(" ")))) {
 					pila.addPila(pila.getLastPositionPila().substring(0, pila.getLastPositionPila().indexOf(tokenAux.substring(1, tokenAux.indexOf(" ")))) + 
 							"Factor" + pila.getLastPositionPila().substring(pila.getLastPositionPila().indexOf(tokenAux.substring(1, tokenAux.indexOf(" "))) + tokenAux.substring(1, tokenAux.indexOf(" ")).length()));
 					pila.addCadena("$");
-					pila.addAccion("Factor -> Numero");
+					pila.addAccion("Factor -> Variable");
 					if(iterarContenidoReglas("Factor")) {
 						pila.addPila(pila.getLastPositionPila().substring(0, pila.getLastPositionPila().indexOf("Factor")) + "Opcion" + pila.getLastPositionPila().substring(pila.getLastPositionPila().indexOf("Factor") + "Factor".length()));
 						pila.addCadena("$");
@@ -539,25 +517,65 @@ public class Main {
 							try {
 								newWord = pila.getLastPositionPila().substring(pila.getLastPositionPila().indexOf("Opcion") + "Opcion".length() + 2).substring(0, "Tipo Operacion".length());
 							} catch (StringIndexOutOfBoundsException e) {
-								cuerpoOperacion(pila.getLastPositionPila().substring(pila.getLastPositionPila().indexOf("Opcion") + "Opcion".length() + 2));
+								return cuerpoOperacion(pila.getLastPositionPila().substring(pila.getLastPositionPila().indexOf("Opcion") + "Opcion".length() + 2));
 							}
 							if(newWord.equals("Tipo Operacion")) {
 								newWord = pila.getLastPositionPila().substring(pila.getLastPositionPila().indexOf("Opcion") + "Opcion".length() + 2).substring("Tipo Operacion".length());
-								cuerpoOperacion(newWord.substring(newWord.indexOf("Opcion") + "Opcion".length() + 2));
+								return cuerpoOperacion(newWord.substring(newWord.indexOf("Opcion") + "Opcion".length() + 2));
 							}
-							else
-								cuerpoOperacion(pila.getLastPositionPila().substring(pila.getLastPositionPila().indexOf("Opcion") + "Opcion".length() + 2));
+							else {
+								return cuerpoOperacion(pila.getLastPositionPila().substring(pila.getLastPositionPila().indexOf("Opcion") + "Opcion".length() + 2));
+							}
 						}
 					}
+					else {
+						//ES CUANDO NO HA ENCONTRADO UN FACTOR
+						return false;
+					}
 				}
-				else
-					return false;
+				else if(revisarArchivos("src\\recursos\\PALABRASRESERVADAS.txt", tokenAux.substring(1, tokenAux.indexOf(" "))))
+					return operacion(pila.getLastPositionPila().substring(pila.getLastPositionPila().indexOf(tokenAux.substring(1, tokenAux.indexOf(" ")))));
+				else {
+					//IMPORTANTE
+					if(isNumeric(tokenAux.substring(1, tokenAux.indexOf(" "))) || isDecimal(tokenAux.substring(1, tokenAux.indexOf(" ")))) {
+						pila.addPila(pila.getLastPositionPila().substring(0, pila.getLastPositionPila().indexOf(tokenAux.substring(1, tokenAux.indexOf(" ")))) + 
+								"Factor" + pila.getLastPositionPila().substring(pila.getLastPositionPila().indexOf(tokenAux.substring(1, tokenAux.indexOf(" "))) + tokenAux.substring(1, tokenAux.indexOf(" ")).length()));
+						pila.addCadena("$");
+						pila.addAccion("Factor -> Numero");
+						if(iterarContenidoReglas("Factor")) {
+							pila.addPila(pila.getLastPositionPila().substring(0, pila.getLastPositionPila().indexOf("Factor")) + "Opcion" + pila.getLastPositionPila().substring(pila.getLastPositionPila().indexOf("Factor") + "Factor".length()));
+							pila.addCadena("$");
+							pila.addAccion("Opcion -> Factor");
+							if(pila.getLastPositionPila().substring(pila.getLastPositionPila().indexOf("Opcion") + "Opcion".length(), (pila.getLastPositionPila().indexOf("Opcion") + "Opcion".length() + 1)).equals(",")) {
+								String newWord = "";
+								try {
+									newWord = pila.getLastPositionPila().substring(pila.getLastPositionPila().indexOf("Opcion") + "Opcion".length() + 2).substring(0, "Tipo Operacion".length());
+								} catch (StringIndexOutOfBoundsException e) {
+									return cuerpoOperacion(pila.getLastPositionPila().substring(pila.getLastPositionPila().indexOf("Opcion") + "Opcion".length() + 2));
+								}
+								if(newWord.equals("Tipo Operacion")) {
+									newWord = pila.getLastPositionPila().substring(pila.getLastPositionPila().indexOf("Opcion") + "Opcion".length() + 2).substring("Tipo Operacion".length());
+									return cuerpoOperacion(newWord.substring(newWord.indexOf("Opcion") + "Opcion".length() + 2));
+								}
+								else {
+									return cuerpoOperacion(pila.getLastPositionPila().substring(pila.getLastPositionPila().indexOf("Opcion") + "Opcion".length() + 2));
+								}
+							}
+						}
+					}
+					else {
+						System.out.println("Es el return false");
+						return false;
+					}
+				}
 			}
+			else
+				return false;
 		}
 		return true;
 	}
 
-	public boolean reglas() {
+	public void reglas() {
 		if(pila.getLastPositionPila().indexOf(reglas.get("Elementos")) != -1) {
 			pila.addPila(pila.getLastPositionPila().substring(0, pila.getLastPositionPila().indexOf(reglas.get("Elementos"))) + "Elementos" +
 					pila.getLastPositionPila().substring(pila.getLastPositionPila().indexOf(reglas.get("Elementos")) + reglas.get("Elementos").length()));
@@ -597,11 +615,11 @@ public class Main {
 			pila.addCadena("$");
 			pila.addAccion("Resultado Final -> Variable = Operacion;");
 		}
-		else if(pila.getLastPositionPila().equals("Resultado Final"))
-			return true;
-		else 
+		else if(pila.getLastPositionPila().equals("Resultado Final")) {
+
+		}
+		else
 			reglas();
-		return false;
 	}
 
 	//MÉTODO DE LA REGLA FUNCIÓN
@@ -811,43 +829,43 @@ public class Main {
 			System.out.println(arbol.getDatoNumero(i) + "\t" + arbol.getDatoLexema(i) + "\t" + arbol.getDatoPadre(i));
 	}
 
-//	public void arbolDeTipo() throws IOException {
-//		for(int k = 0; k < pila.getSize(); k++) {
-//			if(!pila.getDatoAccion(k).equals("Llevar a pila") && !pila.getDatoAccion(k).equals("0")) {
-//				String lexema = pila.getDatoAccion(k).substring(pila.getDatoAccion(k).indexOf("-> ") + "-> ".length());
-//				if(lexema.equals("Variable = Numero")) {
-//					
-//				}
-//				else if(lexema.equals("Variable")){
-//					
-//				}
-//				else if(lexema.equals("(Variable)")) {
-//					
-//				}
-//				else {
-//					if(lexema.indexOf(" ") != -1) {
-//						if(revisarArchivos("src//ficheros//reglas.txt", lexema)) {
-//							
-//						}
-//						else if(iterarContenidoReglas(lexema)) {
-//							
-//						}
-//					}
-//					else {
-//						if(revisarArchivos("src//ficheros//reglas.txt", lexema)) {
-//							
-//						}
-//						else if(iterarContenidoReglas(lexema)) {
-//							
-//						}
-//					}
-//				}
-//				else {
-//					
-//				}
-//			}
-//		}
-//	}
+	//	public void arbolDeTipo() throws IOException {
+	//		for(int k = 0; k < pila.getSize(); k++) {
+	//			if(!pila.getDatoAccion(k).equals("Llevar a pila") && !pila.getDatoAccion(k).equals("0")) {
+	//				String lexema = pila.getDatoAccion(k).substring(pila.getDatoAccion(k).indexOf("-> ") + "-> ".length());
+	//				if(lexema.equals("Variable = Numero")) {
+	//					
+	//				}
+	//				else if(lexema.equals("Variable")){
+	//					
+	//				}
+	//				else if(lexema.equals("(Variable)")) {
+	//					
+	//				}
+	//				else {
+	//					if(lexema.indexOf(" ") != -1) {
+	//						if(revisarArchivos("src//ficheros//reglas.txt", lexema)) {
+	//							
+	//						}
+	//						else if(iterarContenidoReglas(lexema)) {
+	//							
+	//						}
+	//					}
+	//					else {
+	//						if(revisarArchivos("src//ficheros//reglas.txt", lexema)) {
+	//							
+	//						}
+	//						else if(iterarContenidoReglas(lexema)) {
+	//							
+	//						}
+	//					}
+	//				}
+	//				else {
+	//					
+	//				}
+	//			}
+	//		}
+	//	}
 
 	//MÉTODO MAIN
 
@@ -856,8 +874,8 @@ public class Main {
 		String cadena = "BEGIN{\n"+
 				"INTEGER a1;\n" +
 				"REAL b21, b22, b23=2.5;\n" +
-				"a3=ADD(a1, a2);\n" +
-				"a2=ADD(a1, SUB(30, a3));\n" +
+				"a3=ADD(a1, a2);\n"+
+				"a2=ADD(a1, SUB(30, a3));\n"+ 
 				"b22=MUL(b21, DIV(b23, 2.5));\n"+
 				"READ(b22);\n" +
 				"WRITE(a1);\n" +
@@ -866,16 +884,17 @@ public class Main {
 		String[] lineas = cadena.split("\n");
 		int mistakes[] = new int[lineas.length];
 
-//				for(int i = 0; i < mistakes.length; i++) {
-//					if(i == 3 || i == 4 || i == 8)
-//						mistakes[i] = 1;
-//					else
-//						mistakes[i] = 0;
-//				}
+		//				for(int i = 0; i < mistakes.length; i++) {
+		//					if(i == 3 || i == 4 || i == 8)
+		//						mistakes[i] = 1;
+		//					else
+		//						mistakes[i] = 0;
+		//				}
 
 		/** INICIO DE TODO EL ALGORITMO*/
 		boolean flag = true;
 		for(int i = 0; i < lineas.length; i++) {
+			System.out.println("\n\nLINEA A ANALIZAR: "+ lineas[i]);
 			main.pila.limpiarPila();
 			flag = false;
 			/* En este IF queremos decir que si en el arreglo de errores, en la posición "i" hay un cero, vamos
@@ -932,7 +951,7 @@ public class Main {
 						break;
 					case "INTEGER":
 						if(main.declaracionFinal(lineas[i].replace(" ", ""), token)){
-//							main.arbolDerivacion();
+							//							main.arbolDerivacion();
 						}
 						else
 							System.out.println("Hay un error en la línea: "+ (i + 1));
@@ -967,6 +986,9 @@ public class Main {
 					System.out.println("Hay un error en la línea " + i);
 				}
 				b.close();
+				if(flag) {
+					System.out.println("Hay un error en la línea " + i);
+				}
 			}
 			else
 				continue;

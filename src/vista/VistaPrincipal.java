@@ -291,7 +291,7 @@ public class VistaPrincipal extends JFrame {
 													if (!resultado.equalsIgnoreCase("Simbolo")) {
 														if (!resultado.equalsIgnoreCase("Error")) {
 															if (resultado.equalsIgnoreCase("Identificador") && !identificadores.contains(cade)) {
-																identificadores.add(cade+"\t ");
+																identificadores.add(cade);
 
 															}
 															toke.add("("+cade+" , tk_"+cade+")");
