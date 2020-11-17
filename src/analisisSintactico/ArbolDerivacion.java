@@ -7,6 +7,7 @@ public class ArbolDerivacion {
 	private List<Integer> numero;
 	private List<String> lexema;
 	private List<Integer> padre;
+	private int count = 1;
 	
 	public ArbolDerivacion() {
 		this.numero = new ArrayList<Integer>();
@@ -64,5 +65,24 @@ public class ArbolDerivacion {
 	
 	public int getLastPositionPadre() {
 		return this.padre.get(this.padre.size() - 1);
+	}
+	
+	public void vaciarArbol() {
+		this.numero.clear();
+		this.lexema.clear();
+		this.padre.clear();
+	}
+	
+	public void agregarDatoArbol(String dato, boolean esRegla, String numReglas) {
+		if(esRegla) {
+			switch(numReglas) {
+			
+			}
+		}
+		else {
+			addNumero(count);
+			addLexema(dato);
+			addPadre(0);
+		}
 	}
 }

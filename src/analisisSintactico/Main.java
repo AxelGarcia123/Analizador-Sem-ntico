@@ -134,7 +134,9 @@ public class Main {
 		pila.addPila("Tipo");
 		pila.addCadena(pila.getLastPositionCadena());
 		pila.addAccion("Tipo -> "+ token.substring(1, token.indexOf(" ")));
-
+		//ADVVERTENCIA
+		/**AGREGO DATOS AL ÁRBOL DE DERIVACIÓN*/
+//		arbol.agregarDatoArbol(token.substring(1, token.indexOf(" ")), false);
 		while(pila.getLastPositionCadena() != "$") {
 			String tokenAux = "";
 			FileReader f = new FileReader("src\\ficheros\\listaTokens_8-10-2020_21-17-25.txt");
@@ -208,6 +210,9 @@ public class Main {
 								pila.addPila(pila.getLastPositionPila().replace(aux, "Declaracion"));
 								pila.addCadena("$");
 								pila.addAccion("Declaracion -> Variable");
+								//ADVVERTENCIA
+								/**AGREGO DATOS AL ÁRBOL DE DERIVACIÓN*/
+//								arbol.agregarDatoArbol(aux, false);
 							}
 							else {
 								return false;
@@ -231,12 +236,17 @@ public class Main {
 									pila.addPila(result);
 									pila.addCadena("$");
 									pila.addAccion("Declaracion -> Declaracion, Declaracion");
+									//ADVVERTENCIA
+									/**AGREGO DATOS AL ÁRBOL DE DERIVACIÓN*/
+//									arbol.agregarDatoArbol("Declaracion, Declaracion", true, "Una regla con espacios");
 									break;
 								}
 								else if(word.equals("Asignacion")) {
 									pila.addPila(pila.getLastPositionPila().substring(0, pila.getLastPositionPila().indexOf(word)) + "Declaracion" + pila.getLastPositionPila().substring(pila.getLastPositionPila().indexOf(word) + word.length()));
 									pila.addCadena("$");
 									pila.addAccion("Declaracion -> Asignacion");
+									//ADVVERTENCIA
+									/**AGREGO DATOS AL ÁRBOL DE DERIVACIÓN*/
 								}
 								else {
 									System.out.println("Esa palabra no existe "+ aux);
@@ -248,6 +258,8 @@ public class Main {
 							pila.addPila(pila.getLastPositionPila().substring(0, pila.getLastPositionPila().indexOf("Asignacion")) + "Declaracion" + pila.getLastPositionPila().substring(pila.getLastPositionPila().indexOf("Asignacion") + "Asignacio".length() + 1));
 							pila.addCadena("$");
 							pila.addAccion("Declaracion -> Asignacion");
+							//ADVVERTENCIA
+							/**AGREGO DATOS AL ÁRBOL DE DERIVACIÓN*/
 						}
 						else {
 							System.out.println("Esa palabra no existe "+ aux);
@@ -268,6 +280,8 @@ public class Main {
 								pila.addPila(pila.getLastPositionPila().replace(aux, "Declaracion"));
 								pila.addCadena("$");
 								pila.addAccion("Declaracion -> Variable");
+								//ADVVERTENCIA
+								/**AGREGO DATOS AL ÁRBOL DE DERIVACIÓN*/
 							}
 							else 
 								return false;
@@ -281,6 +295,8 @@ public class Main {
 							pila.addPila(pila.getLastPositionPila().replace("Asignacion", "Declaracion"));
 							pila.addCadena("$");
 							pila.addAccion("Declaracion -> Asignacion");
+							//ADVVERTENCIA
+							/**AGREGO DATOS AL ÁRBOL DE DERIVACIÓN*/
 							if(pila.getLastPositionPila().equals(reglas.get("Declaracion Final")))
 								return true;
 							else
@@ -829,43 +845,48 @@ public class Main {
 			System.out.println(arbol.getDatoNumero(i) + "\t" + arbol.getDatoLexema(i) + "\t" + arbol.getDatoPadre(i));
 	}
 
-	//	public void arbolDeTipo() throws IOException {
-	//		for(int k = 0; k < pila.getSize(); k++) {
-	//			if(!pila.getDatoAccion(k).equals("Llevar a pila") && !pila.getDatoAccion(k).equals("0")) {
-	//				String lexema = pila.getDatoAccion(k).substring(pila.getDatoAccion(k).indexOf("-> ") + "-> ".length());
-	//				if(lexema.equals("Variable = Numero")) {
-	//					
-	//				}
-	//				else if(lexema.equals("Variable")){
-	//					
-	//				}
-	//				else if(lexema.equals("(Variable)")) {
-	//					
-	//				}
-	//				else {
-	//					if(lexema.indexOf(" ") != -1) {
-	//						if(revisarArchivos("src//ficheros//reglas.txt", lexema)) {
-	//							
-	//						}
-	//						else if(iterarContenidoReglas(lexema)) {
-	//							
-	//						}
-	//					}
-	//					else {
-	//						if(revisarArchivos("src//ficheros//reglas.txt", lexema)) {
-	//							
-	//						}
-	//						else if(iterarContenidoReglas(lexema)) {
-	//							
-	//						}
-	//					}
-	//				}
-	//				else {
-	//					
-	//				}
-	//			}
-	//		}
-	//	}
+	//Otro método
+		public void arbolDeTipo() throws IOException {
+			for(int k = 0; k < pila.getSize(); k++) {
+				if(!pila.getDatoAccion(k).equals("Llevar a pila") && !pila.getDatoAccion(k).equals("0")) {
+					String lexema = pila.getDatoAccion(k).substring(pila.getDatoAccion(k).indexOf("-> ") + "-> ".length());
+					if(lexema.contains(" ")) {
+						int count = 0;
+						for(int i = 0; i < lexema.length(); i++) {
+							if(lexema.charAt(i) == ' ')
+								count++;
+						}
+						if(count == 1) {
+							/**QUIERE DECIR QUE HAY DOS OPCIONES DE CONTENIDO QUE SON REGLAS
+							 * PUEDE SER
+							 * 		OPCION, OPCION
+							 * 		DECLARACION, DECLARACION
+							 * 		TIPO DECLARACION;*/
+							if(iterarContenidoReglas(lexema)) {
+								switch(lexema) {
+								j
+								}
+							}
+						}
+						else if(count == 2) {
+							/**QUIERE DECIR QUE HAY DOS OPCIONES DE REGLAS
+							 * PUEDE SER
+							 * 		VARIABLE = NUMERO
+							 * 		VARIABLE = OPERACION*/
+						}
+						else if(count == 3) {
+							/**QUIERE DECIR QUE HAY DOS OPCIONES DE REGLAS
+							 * PUEDE SER
+							 * 		TIPO OPERACION CUERPO OPERACION*/
+						}
+					}
+					//SE SUPONE QUE NO HAY ESPACIOS
+					else {
+						
+					}
+				}
+			}
+		}
 
 	//MÉTODO MAIN
 
@@ -1017,9 +1038,11 @@ public class Main {
 		reglas.put("Funcion", "Tipo Funcion Cuerpo Funcion;");
 		reglas.put("Tipo Funcion r", "READ");
 		reglas.put("Tipo Funcion w", "WRITE");
-		reglas.put("Cuerpo Funcion", "(Variable)");
+		reglas.put("Cuerpo Funcion", "(Variable)"); //TENER EN CUENTA
 		reglas.put("Tipo INT", "INTEGER");
 		reglas.put("Tipo REAL", "REAL");
+		reglas.put("Factor num", "Numero");
+		reglas.put("Factor var", "Variable");
 	}
 
 	/**ITERADOR DE REGLAS*/
