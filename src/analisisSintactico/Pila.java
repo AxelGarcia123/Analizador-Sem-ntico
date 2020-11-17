@@ -59,7 +59,6 @@ public class Pila {
 		this.cadena.clear();
 		this.accion.clear();
 	}
-	//
 	
 	public String getDatoPila(int position) {
 		return this.stack.get(position);

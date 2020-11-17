@@ -1,34 +1,33 @@
 package analisisSintactico;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map.Entry;
-import java.util.Stack;
 
 public class Main {
 
 	private Pila pila;
 	private HashMap<String, String>reglas;
+	private ArbolDerivacion arbol;
 
 	public Main() {
 		this.pila = new Pila();
 		this.reglas = new HashMap<String, String>();
+		this.arbol = new ArbolDerivacion();
 		llenarReglas();
 	}
 
 	/**ESTA REGLA LA PUEDO REDUCIR DEMASIADO O MÁS O MENOS*/
 	public boolean reglaBegin(String linea) throws IOException {
+		//BEGIN{
 		pila.addPila("0");
 		pila.addCadena(linea);
-		pila.addAccion("0");
+		pila.addAccion("0");		//BEGIN{			//Sustraer		//De BEGIN{				//BEGIN
+		//BEGIN
 		pila.addPila(pila.getLastPositionCadena().substring(pila.getLastPositionCadena().indexOf("BEGIN"), pila.getLastPositionCadena().indexOf("BEGIN") + "BEGIN".length()));
-		pila.addCadena(pila.getLastPositionCadena().replace(pila.getLastPositionPila(), ""));
+		pila.addCadena(pila.getLastPositionCadena().replace(pila.getLastPositionPila(), ""));//{
 		pila.addAccion("Llevar a pila");
 
 		String token = "";
@@ -63,7 +62,7 @@ public class Main {
 			pila.addAccion("Llevar a pila");
 			if(pila.getLastPositionCadena().isEmpty()) {
 				pila.getCadena().set(pila.getSize() - 1, "$");
-				if(pila.getLastPositionPila().equals(reglas.get("Inicio"))) {
+				if(pila.getLastPositionPila().equals(reglas.get("Inicio"))) {//BEGIN{
 					pila.addPila("Inicio");
 					pila.addCadena("$");
 					pila.addAccion("Inicio -> BEGIN {");
@@ -85,6 +84,42 @@ public class Main {
 			System.out.println("Caracter no encontrado. Cadena incorrecta");
 			return false;
 		}
+	}
+	
+	/**PILA		CADENA		ACCION
+	 * 			}END				
+	 * }		END			LLEVAR A PILA
+	 * @throws IOException */
+	public boolean reglaEnd(String linea) throws IOException {
+		pila.addPila("0");
+		pila.addCadena(linea);
+		pila.addAccion("0");
+		pila.addPila(pila.getLastPositionCadena().substring(pila.getLastPositionCadena().indexOf("}"), "}".length()));
+		pila.addCadena(pila.getLastPositionCadena().substring(pila.getLastPositionCadena().indexOf("}") + "}".length()));
+		pila.addAccion("Llevar a pila");
+		String siguientePalabra = buscarListaToken(pila.getLastPositionCadena());
+		if(!siguientePalabra.isEmpty()) {
+			pila.addPila(pila.getLastPositionPila() + " " + siguientePalabra);
+			pila.addCadena(pila.getLastPositionCadena().replace(siguientePalabra, ""));
+			pila.addAccion("Llevar a pila");
+			if(pila.getLastPositionCadena().isEmpty()) {
+				pila.getCadena().set(pila.getCadena().size() - 1, "$");
+				if(reglas.get("Fin").equals(pila.getLastPositionPila())) {
+					pila.addPila("Fin");
+					pila.addCadena("$");
+					pila.addAccion("Fin -> } END");
+					for(int i = 0; i < pila.getSize(); i++)
+						System.out.println(pila.getDatoPila(i) + "\t\t\t\t" + pila.getDatoCadena(i) + "\t\t\t\t" + pila.getDatoAccion(i));
+					return true;
+				}
+				else
+					return false;
+			}
+			else
+				return false;
+		}
+		else
+			return false;
 	}
 
 	public boolean declaracionFinal(String linea, String token) throws IOException {
@@ -138,9 +173,16 @@ public class Main {
 			}
 		}
 		if(declaracion()) {
-			for(int i = 0; i < pila.getSize(); i++)
-				System.out.println(pila.getDatoPila(i) + "\t\t\t\t" + pila.getDatoCadena(i) + "\t\t\t\t" + pila.getDatoAccion(i));
-			return true;
+			if(reglas.get("Declaracion Final").equals(pila.getLastPositionPila())) {
+				pila.addPila("Declaracion Final");
+				pila.addCadena("$");
+				pila.addAccion("Declaracion Final -> Tipo Declaracion;");
+				for(int i = 0; i < pila.getSize(); i++)
+					System.out.println(pila.getDatoPila(i) + "\t\t\t\t" + pila.getDatoCadena(i) + "\t\t\t\t" + pila.getDatoAccion(i));
+				return true;
+			}
+			else
+				return false;
 		}
 		else
 			return false;
@@ -156,7 +198,7 @@ public class Main {
 				aux += auxPila.charAt(i);
 			else {
 				if(auxPila.charAt(i) == ',') {
-					if(!iterarReglas(aux)) {
+					if(!iterarContenidoReglas(aux)) {
 						if(asignacion(aux)) {
 							aux = "";
 							continue;
@@ -165,7 +207,7 @@ public class Main {
 							if(revisarArchivos("src\\ficheros\\identificador.txt", aux)) {
 								pila.addPila(pila.getLastPositionPila().replace(aux, "Declaracion"));
 								pila.addCadena("$");
-								pila.addAccion("Declaracion -> variable");
+								pila.addAccion("Declaracion -> Variable");
 							}
 							else {
 								return false;
@@ -216,7 +258,7 @@ public class Main {
 						break;
 				}
 				else {
-					if(!iterarReglas(aux)) {
+					if(!iterarContenidoReglas(aux)) {
 						if(asignacion(aux)) {
 							aux = "";
 							continue;
@@ -225,7 +267,7 @@ public class Main {
 							if(revisarArchivos("src\\ficheros\\identificador.txt", aux)) {
 								pila.addPila(pila.getLastPositionPila().replace(aux, "Declaracion"));
 								pila.addCadena("$");
-								pila.addAccion("Declaracion -> variable");
+								pila.addAccion("Declaracion -> Variable");
 							}
 							else 
 								return false;
@@ -270,7 +312,7 @@ public class Main {
 					}
 					else {
 						if(revisarArchivos("src\\ficheros\\identificador.txt", aux)) 
-							nuevaCadena += "variable ";
+							nuevaCadena += "Variable ";
 					}
 					if(linea.charAt(i) == '=') {
 						nuevaCadena += "= ";
@@ -283,22 +325,22 @@ public class Main {
 
 				String auxLinea = linea.substring(count + 1, linea.length());
 				if(isNumeric(auxLinea)) {
-					nuevaCadena += "numero";
+					nuevaCadena += "Numero";
 					if(nuevaCadena.equals(reglas.get("Asignacion"))) {
 						pila.addPila(pila.getLastPositionPila().replace(aux + " = "+ auxLinea, "Asignacion"));
 						pila.addCadena("$");
-						pila.addAccion("Asignacion -> variable = numero");
+						pila.addAccion("Asignacion -> Variable = Numero");
 						return true;
 					}
 					else
 						return false;
 				}
 				else if(isDecimal(auxLinea)) {
-					nuevaCadena += "numero";
+					nuevaCadena += "Numero";
 					if(nuevaCadena.equals(reglas.get("Asignacion"))) {
 						pila.addPila(pila.getLastPositionPila().replace(aux + " = "+ auxLinea, "Asignacion"));
 						pila.addCadena("$");
-						pila.addAccion("Asignacion -> variable = numero");
+						pila.addAccion("Asignacion -> Variable = Numero");
 						return true;
 					}
 					else
@@ -398,7 +440,7 @@ public class Main {
 				continue;
 		}
 		if(flag) {
-			if(iterarReglas(tokenAux.substring(1, tokenAux.indexOf(" ")))) {
+			if(iterarContenidoReglas(tokenAux.substring(1, tokenAux.indexOf(" ")))) {
 				/**CONSIDERAR CONVERTIR LA PALABRA RESERVADA A TIPO OPERACION ANTES DE EL IF QUE ESTÁ DEBAJO*/
 				pila.addPila(pila.getLastPositionPila().substring(0, pila.getLastPositionPila().indexOf(tokenAux.substring(1, tokenAux.indexOf(" ")))) + 
 						"Tipo Operacion " + pila.getLastPositionPila().substring(pila.getLastPositionPila().indexOf(tokenAux.substring(1, tokenAux.indexOf(" "))) + tokenAux.substring(1, tokenAux.indexOf(" ")).length()));
@@ -456,7 +498,7 @@ public class Main {
 						"Factor" + pila.getLastPositionPila().substring(pila.getLastPositionPila().indexOf(tokenAux.substring(1, tokenAux.indexOf(" "))) + tokenAux.substring(1, tokenAux.indexOf(" ")).length()));
 				pila.addCadena("$");
 				pila.addAccion("Factor -> Variable");
-				if(iterarReglas("Factor")) {
+				if(iterarContenidoReglas("Factor")) {
 					pila.addPila(pila.getLastPositionPila().substring(0, pila.getLastPositionPila().indexOf("Factor")) + "Opcion" + pila.getLastPositionPila().substring(pila.getLastPositionPila().indexOf("Factor") + "Factor".length()));
 					pila.addCadena("$");
 					pila.addAccion("Opcion -> Factor");
@@ -488,7 +530,7 @@ public class Main {
 							"Factor" + pila.getLastPositionPila().substring(pila.getLastPositionPila().indexOf(tokenAux.substring(1, tokenAux.indexOf(" "))) + tokenAux.substring(1, tokenAux.indexOf(" ")).length()));
 					pila.addCadena("$");
 					pila.addAccion("Factor -> Numero");
-					if(iterarReglas("Factor")) {
+					if(iterarContenidoReglas("Factor")) {
 						pila.addPila(pila.getLastPositionPila().substring(0, pila.getLastPositionPila().indexOf("Factor")) + "Opcion" + pila.getLastPositionPila().substring(pila.getLastPositionPila().indexOf("Factor") + "Factor".length()));
 						pila.addCadena("$");
 						pila.addAccion("Opcion -> Factor");
@@ -716,36 +758,123 @@ public class Main {
 		if(reglas.get("Cuerpo Funcion").equals(cadenaFinal)) {
 			pila.addPila(pila.getLastPositionPila().replace(pila.getLastPositionPila().substring("Tipo Funcion".length() + 1), "Cuerpo Funcion;"));
 			pila.addCadena("$");
-			pila.addAccion("Cuerpo Funcion ->"+ cadenaFinal);
+			pila.addAccion("Cuerpo Funcion -> "+ cadenaFinal);
 			return true;
 		}
 		return false;
 	}
 
+	/**ÁRBOL DE DERIVACIÓN
+	 * @throws IOException */
+	public void arbolDerivacion() throws IOException {
+		for(int k = 0; k < pila.getSize(); k++) {
+			if(!pila.getDatoAccion(k).equals("Llevar a pila") && !pila.getDatoAccion(k).equals("0")) {
+				String lexema = pila.getDatoAccion(k).substring(pila.getDatoAccion(k).indexOf("-> ") + "-> ".length());
+				if(iterarReglas(lexema)) {
+
+				}
+				else if(iterarContenidoReglas(lexema)) {
+					lexema = lexema.replace(" ", "");
+					String aux = "";
+					do {
+						String newToken = buscarListaToken(lexema);
+						aux = newToken + aux;
+						lexema = lexema.replace(newToken, "");
+					}while(!lexema.isEmpty());
+					int i = 1;
+					do {
+						arbol.addNumero(i);
+						String newToken = buscarListaToken(aux);
+						arbol.addLexema(newToken);
+						arbol.addPadre(0);
+						aux = aux.replace(newToken, "");
+						i++;
+					}while(!aux.isEmpty());
+				}
+			}
+			else
+				continue;
+		}
+		String ultimoLexema = pila.getLastPositionPila();
+		arbol.addNumero(arbol.getLastPositionNum() + 1);
+		arbol.addLexema(ultimoLexema);
+		arbol.addPadre(0);
+		for(int i = arbol.getSize(); i > 0; i--) {
+			if(arbol.getDatoPadre(i - 1) == 0 && !arbol.getDatoLexema(i - 1).equals(arbol.getLastPositionLex())) {
+				if(reglas.get(arbol.getLastPositionLex()).indexOf(arbol.getDatoLexema(i - 1)) != -1) {
+					arbol.getPadre().set(i - 1, arbol.getLastPositionNum());
+				}
+			}
+		}
+		System.out.println("Número\tLexema\tPadre");
+		for(int i = 0; i < arbol.getSize(); i++)
+			System.out.println(arbol.getDatoNumero(i) + "\t" + arbol.getDatoLexema(i) + "\t" + arbol.getDatoPadre(i));
+	}
+
+//	public void arbolDeTipo() throws IOException {
+//		for(int k = 0; k < pila.getSize(); k++) {
+//			if(!pila.getDatoAccion(k).equals("Llevar a pila") && !pila.getDatoAccion(k).equals("0")) {
+//				String lexema = pila.getDatoAccion(k).substring(pila.getDatoAccion(k).indexOf("-> ") + "-> ".length());
+//				if(lexema.equals("Variable = Numero")) {
+//					
+//				}
+//				else if(lexema.equals("Variable")){
+//					
+//				}
+//				else if(lexema.equals("(Variable)")) {
+//					
+//				}
+//				else {
+//					if(lexema.indexOf(" ") != -1) {
+//						if(revisarArchivos("src//ficheros//reglas.txt", lexema)) {
+//							
+//						}
+//						else if(iterarContenidoReglas(lexema)) {
+//							
+//						}
+//					}
+//					else {
+//						if(revisarArchivos("src//ficheros//reglas.txt", lexema)) {
+//							
+//						}
+//						else if(iterarContenidoReglas(lexema)) {
+//							
+//						}
+//					}
+//				}
+//				else {
+//					
+//				}
+//			}
+//		}
+//	}
+
 	//MÉTODO MAIN
 
 	public static void main(String[] args) throws IOException {
 		Main main = new Main();
-		String cadena = "BEGIN{\n" +
-				"INTEGER a1=2.5, a3, a2=20;\n" +
+		String cadena = "BEGIN{\n"+
+				"INTEGER a1;\n" +
 				"REAL b21, b22, b23=2.5;\n" +
 				"a3=ADD(a1, a2);\n" +
 				"a2=ADD(a1, SUB(30, a3));\n" +
 				"b22=MUL(b21, DIV(b23, 2.5));\n"+
-				"READ(b22);";
+				"READ(b22);\n" +
+				"WRITE(a1);\n" +
+				"}END";
 
 		String[] lineas = cadena.split("\n");
 		int mistakes[] = new int[lineas.length];
 
-		//		for(int i = 0; i < mistakes.length; i++) {
-		//			if(i == 3 || i == 4 || i == 8)
-		//				mistakes[i] = 1;
-		//			else
-		//				mistakes[i] = 0;
-		//		}
+//				for(int i = 0; i < mistakes.length; i++) {
+//					if(i == 3 || i == 4 || i == 8)
+//						mistakes[i] = 1;
+//					else
+//						mistakes[i] = 0;
+//				}
 
-		boolean flag = true;
 		/** INICIO DE TODO EL ALGORITMO*/
+		boolean flag = true;
 		for(int i = 0; i < lineas.length; i++) {
 			main.pila.limpiarPila();
 			flag = false;
@@ -762,6 +891,7 @@ public class Main {
 							break;
 						}
 						else {
+							//BEGIN		//BEGIN 
 							if(lineas[i].charAt(j) == token.charAt(j + 1))
 								flag = true;
 							else {
@@ -785,13 +915,27 @@ public class Main {
 				if(flag) {
 					switch(token.substring(1, token.indexOf(" "))) {
 					case "BEGIN":
-						flag = main.reglaBegin(lineas[i]);
+						if(main.reglaBegin(lineas[i]))
+							main.arbolDerivacion();
+						else
+							//METER LOS ERRORES EN UN ARREGLO "i"
+							System.out.println("Hay un error en la línea: "+ (i + 1));
 						break;
 					case "}":
+						if(main.reglaEnd(lineas[i])) {
+							System.out.println("La cadena está bien");
+						}
+						else {
+							System.out.println("Está mal");
+						}
 						//PENDIENTE DE END. FÁCIL
 						break;
 					case "INTEGER":
-						flag = main.declaracionFinal(lineas[i].replace(" ", ""), token);
+						if(main.declaracionFinal(lineas[i].replace(" ", ""), token)){
+//							main.arbolDerivacion();
+						}
+						else
+							System.out.println("Hay un error en la línea: "+ (i + 1));
 						break;
 					case "REAL":
 						flag = main.declaracionFinal(lineas[i].replace(" ", ""), token);
@@ -819,12 +963,6 @@ public class Main {
 						}
 					}
 				}
-				/**Aquí tengo que programar para cuando sí esté bien la regla y tengamos
-				 * que pasar todo de la pila al árbol de derivación*/
-				if(flag) {
-					System.out.println("La pila está correcta");
-					//PENDIENTE PARA EL ÁRBOL DE DERIVACIÓN
-				}
 				else {
 					System.out.println("Hay un error en la línea " + i);
 				}
@@ -843,7 +981,7 @@ public class Main {
 		reglas.put("Declaracion", "Declaracion");
 		reglas.put("Declaracion asig", "Asignacion");
 		reglas.put("Declaracion dec", "Declaracion, Declaracion");
-		reglas.put("Asignacion", "variable = numero");
+		reglas.put("Asignacion", "Variable = Numero");
 		reglas.put("Resultado Final", "Variable = Operacion;");
 		reglas.put("Operacion", "Tipo Operacion Cuerpo Operacion");
 		reglas.put("Tipo Operacion add", "ADD");
@@ -858,12 +996,22 @@ public class Main {
 		reglas.put("Tipo Funcion r", "READ");
 		reglas.put("Tipo Funcion w", "WRITE");
 		reglas.put("Cuerpo Funcion", "(Variable)");
+		reglas.put("Tipo INT", "INTEGER");
+		reglas.put("Tipo REAL", "REAL");
 	}
 
 	/**ITERADOR DE REGLAS*/
-	public boolean iterarReglas(String cadena) {
+	public boolean iterarContenidoReglas(String cadena) {
 		for (Entry<String, String> entry : reglas.entrySet()) {
 			if(cadena.equals(entry.getValue())) 
+				return true;
+		}
+		return false;
+	}
+
+	public boolean iterarReglas(String cadena) {
+		for (Entry<String, String> entry : reglas.entrySet()) {
+			if(cadena.equals(entry.getKey())) 
 				return true;
 		}
 		return false;
@@ -907,5 +1055,38 @@ public class Main {
 				continue;
 		}
 		return false;
+	}
+
+	public String buscarListaToken(String aux) throws IOException {
+		String tokenAux = "";
+		FileReader f = new FileReader("src\\ficheros\\listaTokens_8-10-2020_21-17-25.txt");
+		BufferedReader b = new BufferedReader(f);
+		boolean flag = true;
+		int j = 0;
+		while((tokenAux = b.readLine()) != null) {
+			for(int i = 0; i < aux.length(); i++) {
+				if(aux.charAt(i) == tokenAux.charAt(i + 1)) {
+					flag = true;
+				}
+				else {
+					if(tokenAux.charAt(i + 1) == ' ') {
+						flag = true;
+						break;
+					}
+					else {
+						flag = false;
+						break;
+					}
+				}
+			}
+			if(flag)
+				break;
+			else
+				continue;
+		}
+		if(flag)
+			return tokenAux.substring(1, tokenAux.indexOf(" "));
+		else
+			return "";
 	}
 }

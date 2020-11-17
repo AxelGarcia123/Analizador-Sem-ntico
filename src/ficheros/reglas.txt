@@ -1,0 +1,17 @@
+Inicio
+Tipo
+Numero
+Factor
+Declaracion Final
+Declaracion
+Asignacion
+Funcion
+Tipo Funcion
+Cuerpo Funcion
+Resultado Final
+Operacion
+Tipo Operacion
+Cuerpo Operacion
+Elementos
+Opcion
+Fin
