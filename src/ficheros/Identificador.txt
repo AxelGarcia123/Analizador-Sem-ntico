@@ -1,5 +1,4 @@
 Indentificador	valor
-a1	 
-a2
-a3
-a1
+b21
+b22
+b23

@@ -781,6 +781,8 @@ public class VistaPrincipal extends JFrame {
 					pila.getCadena().set(pila.getSize() - 1, "$");
 				}
 			}
+			else
+				return false;
 		}
 		if(declaracion()) {
 			if(reglas.get("Declaracion Final").equals(pila.getLastPositionPila())) {
@@ -818,9 +820,6 @@ public class VistaPrincipal extends JFrame {
 								pila.addPila(pila.getLastPositionPila().replace(aux, "Declaracion"));
 								pila.addCadena("$");
 								pila.addAccion("Declaracion -> Variable");
-								//ADVVERTENCIA
-								/**AGREGO DATOS AL ÁRBOL DE DERIVACIÓN*/
-								//								arbol.agregarDatoArbol(aux, false);
 							}
 							else {
 								return false;
@@ -844,17 +843,12 @@ public class VistaPrincipal extends JFrame {
 									pila.addPila(result);
 									pila.addCadena("$");
 									pila.addAccion("Declaracion -> Declaracion, Declaracion");
-									//ADVVERTENCIA
-									/**AGREGO DATOS AL ÁRBOL DE DERIVACIÓN*/
-									//									arbol.agregarDatoArbol("Declaracion, Declaracion", true, "Una regla con espacios");
 									break;
 								}
 								else if(word.equals("Asignacion")) {
 									pila.addPila(pila.getLastPositionPila().substring(0, pila.getLastPositionPila().indexOf(word)) + "Declaracion" + pila.getLastPositionPila().substring(pila.getLastPositionPila().indexOf(word) + word.length()));
 									pila.addCadena("$");
 									pila.addAccion("Declaracion -> Asignacion");
-									//ADVVERTENCIA
-									/**AGREGO DATOS AL ÁRBOL DE DERIVACIÓN*/
 								}
 								else {
 									System.out.println("Esa palabra no existe "+ aux);
@@ -866,8 +860,6 @@ public class VistaPrincipal extends JFrame {
 							pila.addPila(pila.getLastPositionPila().substring(0, pila.getLastPositionPila().indexOf("Asignacion")) + "Declaracion" + pila.getLastPositionPila().substring(pila.getLastPositionPila().indexOf("Asignacion") + "Asignacio".length() + 1));
 							pila.addCadena("$");
 							pila.addAccion("Declaracion -> Asignacion");
-							//ADVVERTENCIA
-							/**AGREGO DATOS AL ÁRBOL DE DERIVACIÓN*/
 						}
 						else {
 							System.out.println("Esa palabra no existe "+ aux);
@@ -888,8 +880,6 @@ public class VistaPrincipal extends JFrame {
 								pila.addPila(pila.getLastPositionPila().replace(aux, "Declaracion"));
 								pila.addCadena("$");
 								pila.addAccion("Declaracion -> Variable");
-								//ADVVERTENCIA
-								/**AGREGO DATOS AL ÁRBOL DE DERIVACIÓN*/
 							}
 							else 
 								return false;
@@ -903,8 +893,6 @@ public class VistaPrincipal extends JFrame {
 							pila.addPila(pila.getLastPositionPila().replace("Asignacion", "Declaracion"));
 							pila.addCadena("$");
 							pila.addAccion("Declaracion -> Asignacion");
-							//ADVVERTENCIA
-							/**AGREGO DATOS AL ÁRBOL DE DERIVACIÓN*/
 							if(pila.getLastPositionPila().equals(reglas.get("Declaracion Final")))
 								return true;
 							else
@@ -1089,6 +1077,7 @@ public class VistaPrincipal extends JFrame {
 			else {
 				//ES CUANDO NO HA ENCONTRADO NINGUNA PALABRA RESERVADA
 				System.out.println("ES CUANDO NO HA ENCONTRADO NINGUNA PALABRA RESERVADA");
+				return false;
 			}
 		}
 		return true;
