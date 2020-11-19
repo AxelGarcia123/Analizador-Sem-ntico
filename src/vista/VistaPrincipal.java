@@ -1214,14 +1214,14 @@ public class VistaPrincipal extends JFrame {
 			pila.addPila(pila.getLastPositionPila().substring(0, pila.getLastPositionPila().indexOf("(Opcion, Operacion)")) + "(Opcion, Opcion)" +
 					pila.getLastPositionPila().substring(pila.getLastPositionPila().indexOf("(Opcion, Operacion)") + "(Opcion, Operacion)".length()));
 			pila.addCadena("$");
-			pila.addAccion("Opcion -> Opcion");
+			pila.addAccion("Opcion -> Operacion");
 		}
 
 		else if(pila.getLastPositionPila().indexOf("(Operacion, Opcion)") != -1) {
 			pila.addPila(pila.getLastPositionPila().substring(0, pila.getLastPositionPila().indexOf("(Operacion, Opcion)")) + "(Opcion, Opcion)" +
 					pila.getLastPositionPila().substring(pila.getLastPositionPila().indexOf("(Operacion, Opcion)") + "(Operacion, Opcion)".length()));
 			pila.addCadena("$");
-			pila.addAccion("Opcion -> Opcion");
+			pila.addAccion("Opcion -> Operacion");
 		}
 		if(pila.getLastPositionPila().indexOf(reglas.get("Resultado Final")) != -1) {
 			pila.addPila("Resultado Final");
@@ -1925,6 +1925,21 @@ public class VistaPrincipal extends JFrame {
 							if(arbol.getDatoPadre(i - 1) == 0 && !arbol.getDatoLexema(i - 1).equals(arbol.getLastPositionLex())) {
 								if(arbol.getDatoLexema(i - 1).equals("Numero") || arbol.getDatoLexema(i - 1).equals("Variable")) {
 									arbol.getPadre().set(i - 1, arbol.getLastPositionNum());
+									break;
+								}
+							}
+						}
+						break;
+					case "Operacion":
+						arbol.addNumero(contador);
+						arbol.addLexema(lexema);
+						arbol.addPadre(0);
+						contador++;
+						for(int i = arbol.getSize(); i > 0; i--) {
+							if(arbol.getDatoPadre(i - 1) == 0 && !arbol.getDatoLexema(i - 1).equals(arbol.getLastPositionLex())) {
+								if(arbol.getDatoLexema(i - 1).equals("Tipo Operacion") && arbol.getDatoLexema(i - 2).equals("Cuerpo Operacion")) {
+									arbol.getPadre().set(i - 1, arbol.getLastPositionNum());
+									arbol.getPadre().set(i - 2, arbol.getLastPositionNum());
 									break;
 								}
 							}
