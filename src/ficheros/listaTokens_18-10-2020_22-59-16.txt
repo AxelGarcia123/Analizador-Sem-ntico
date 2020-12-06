@@ -1,3 +1,0 @@
-(BEGIN , tk_BEGIN)
-({ , tk_{)
-({ , tk_{)

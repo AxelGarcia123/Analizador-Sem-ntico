@@ -1,8 +1,0 @@
-(READ , tk_READ)
-(( , tk_()
-(a1 , tk_a1)
-(; , tk_;)
-(READ , tk_READ)
-(a1 , tk_a1)
-() , tk_))
-(; , tk_;)

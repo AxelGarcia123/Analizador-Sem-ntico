@@ -23,6 +23,7 @@ import com.itextpdf.layout.element.Table;
 
 
 public class EscribirFichero {
+	
 	public  void  crearPDF(){
 		try {
 			PdfWriter write = new PdfWriter("src\\ficheros\\archivo"+fechaHora()+".pdf");

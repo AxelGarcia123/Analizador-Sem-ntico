@@ -1,4 +1,2 @@
 Indentificador	valor
-b22
-b21
-b23
+a2

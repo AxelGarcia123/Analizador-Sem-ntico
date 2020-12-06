@@ -1,4 +1,0 @@
-(INTEGER , tk_INTEGER)
-(, , tk_,)
-(a3 , tk_a3)
-(; , tk_;)

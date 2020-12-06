@@ -1,5 +1,0 @@
-(WRITE , tk_WRITE)
-(( , tk_()
-(a1 , tk_a1)
-() , tk_))
-(; , tk_;)
