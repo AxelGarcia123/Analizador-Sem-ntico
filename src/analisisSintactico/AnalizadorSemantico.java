@@ -374,6 +374,18 @@ public class AnalizadorSemantico {
 					else
 						break;
 				}
+				else if(arbol.getDatoLexema(i).equals("READ") || arbol.getDatoLexema(i).equals("WRITE")) {
+					if(revisarTabla(arbol.getDatoLexema(i + 2))) {
+						if(encontrarTipo(arbol.getDatoLexema(i + 2)).contains("Integer"))
+							arbol.getLexema().set(i + 2, arbol.getDatoLexema(i + 2) + "   INTEGER");
+						else
+							arbol.getLexema().set(i + 2, arbol.getDatoLexema(i + 2) + "   REAL");
+					}
+					else {
+						System.out.println("La variable no ha sido declarada");
+						break;
+					}
+				}
 				else 
 					continue;
 			}
@@ -383,6 +395,12 @@ public class AnalizadorSemantico {
 		
 		for(int i = 0; i < arbol.getSize(); i++)
 			System.out.println(arbol.getDatoNumero(i) + "\t" + arbol.getDatoLexema(i) + "\t" + arbol.getDatoPadre(i));
+		
+		if(arbol.getDatoLexema(arbol.getSize() - 1).equals("Fin") && arbol.getDatoLexema(2).equals("Inicio")) {
+			System.out.println("Cumple con la regla");
+		}
+		else
+			System.out.println("No cumple con la regla");
 	}
 
     public static void main(String[] args) throws IOException {

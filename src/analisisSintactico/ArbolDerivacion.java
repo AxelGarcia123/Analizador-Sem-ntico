@@ -72,17 +72,4 @@ public class ArbolDerivacion {
 		this.lexema.clear();
 		this.padre.clear();
 	}
-	
-	public void agregarDatoArbol(String dato, boolean esRegla, String numReglas) {
-		if(esRegla) {
-			switch(numReglas) {
-			
-			}
-		}
-		else {
-			addNumero(count);
-			addLexema(dato);
-			addPadre(0);
-		}
-	}
 }

@@ -11,6 +11,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 import analisisSintactico.ArbolDerivacion;
 import analisisSintactico.Main;
 import analisisSintactico.Pila;
+import analisisSintactico.TablaValores;
 import modelo.LinkedList;
 import modeloAutomata.AutomataEntero;
 import modeloAutomata.AutomataIdentificador;
@@ -398,6 +399,26 @@ public class VistaPrincipal extends JFrame {
 				for (Integer error: erroresDelAnalizador) {
 					editorPane.setText(editorPane.getText() + "Error sintáctico en la línea: "+ error + "\n");
 				}
+				
+				try {
+					editorPane.setText("");
+					cargarArbol("src\\ficheros\\arbolDerivacion.txt");
+					revisarArbol();
+					String arbolDerivacion = "";
+					for(int j = 0; j <arbol.getSize(); j++) {
+						if(j != arbol.getSize() - 1)
+							arbolDerivacion += arbol.getDatoNumero(j) + "\t\t" + arbol.getDatoLexema(j) + "\t\t"+ arbol.getDatoPadre(j) + "\n";
+						else
+							arbolDerivacion += arbol.getDatoNumero(j) + "\t\t" + arbol.getDatoLexema(j) + "\t\t"+ arbol.getDatoPadre(j);
+					}
+					generarFichero.crearListasArbolDerivacion(arbolDerivacion);
+					arbol.vaciarArbol();
+				} catch (Exception e) {
+					// TODO: handle exception
+				}
+				for (Integer error: erroresDelAnalizador) {
+					editorPane.setText(editorPane.getText() + "Error semántico en la línea: "+ error + "\n");
+				}
 			}
 		});
 		btnAnalizar.setFont(new Font("Tahoma", Font.PLAIN, 15));
@@ -627,9 +648,14 @@ public class VistaPrincipal extends JFrame {
 				continue;
 		}
 		String arbolDerivacion = "";
-		for(int j = 0; j <arbol.getSize(); j++)
-			arbolDerivacion += arbol.getDatoNumero(j) + "\t\t" + arbol.getDatoLexema(j) + "\t\t"+ arbol.getDatoPadre(j) + "\n";
+		for(int j = 0; j <arbol.getSize(); j++) {
+			if(j != arbol.getSize() - 1)
+				arbolDerivacion += arbol.getDatoNumero(j) + "\t\t" + arbol.getDatoLexema(j) + "\t\t"+ arbol.getDatoPadre(j) + "\n";
+			else
+				arbolDerivacion += arbol.getDatoNumero(j) + "\t\t" + arbol.getDatoLexema(j) + "\t\t"+ arbol.getDatoPadre(j);
+		}
 		generarFichero.crearListasArbolDerivacion(arbolDerivacion);
+		arbol.vaciarArbol();
 	}
 	
 	public boolean asignacionSimple(String linea) throws IOException {
@@ -1418,6 +1444,7 @@ public class VistaPrincipal extends JFrame {
 		String aux = pila.getLastPositionPila().substring("Tipo Funcion".length() + 1);
 		String cadenaFinal = "";
 		String tokenAux = "";
+		String identificador = "";
 		FileReader f = new FileReader(listaTokens);
 		BufferedReader b = new BufferedReader(f);
 		boolean flag = true;
@@ -1448,6 +1475,7 @@ public class VistaPrincipal extends JFrame {
 				if(revisarArchivos("src\\ficheros\\identificador.txt", tokenAux.substring(1, tokenAux.indexOf(" ")))) {
 					aux = aux.replace(tokenAux.substring(1, tokenAux.indexOf(" ")), "");
 					cadenaFinal += "Variable";
+					identificador = tokenAux.substring(1, tokenAux.indexOf(" "));
 				}
 				else {
 					cadenaFinal += tokenAux.substring(1, tokenAux.indexOf(" "));
@@ -1462,7 +1490,7 @@ public class VistaPrincipal extends JFrame {
 			pila.addPila(pila.getLastPositionPila().replace(pila.getLastPositionPila().substring("Tipo Funcion".length() + 1), "Cuerpo Funcion"+ pila.getLastPositionPila().substring(pila.getLastPositionPila().indexOf(tokenAux.substring(1, tokenAux.indexOf(" "))) + tokenAux.substring(1, tokenAux.indexOf(" ")).length())));
 			System.out.println("PILA ULTIMA POSICION: "+ pila.getLastPositionPila());
 			pila.addCadena("$");
-			pila.addAccion("Cuerpo Funcion -> "+ cadenaFinal);
+			pila.addAccion("Cuerpo Funcion -> ("+ identificador + ")");
 			return true;
 		}
 		return false;
@@ -1898,7 +1926,7 @@ public class VistaPrincipal extends JFrame {
 							contador++;
 							for(int i = arbol.getSize(); i > 0; i--) {
 								if(arbol.getDatoPadre(i - 1) == 0 && !arbol.getDatoLexema(i - 1).equals(arbol.getLastPositionLex())) {
-									if((arbol.getDatoLexema(i - 1 ).equals("(") && arbol.getDatoLexema(i - 2).equals("Variable") && arbol.getDatoLexema(i - 3).equals(")")) && (arbol.getDatoPadre(i - 1) == 0 && arbol.getDatoPadre(i - 2) == 0 && arbol.getDatoPadre(i - 3) == 0)) {
+									if((arbol.getDatoLexema(i - 1 ).equals("(") && revisarArchivos("src\\ficheros\\identificador.txt", arbol.getDatoLexema(i - 2)) && arbol.getDatoLexema(i - 3).equals(")")) && (arbol.getDatoPadre(i - 1) == 0 && arbol.getDatoPadre(i - 2) == 0 && arbol.getDatoPadre(i - 3) == 0)) {
 										arbol.getPadre().set(i - 1, arbol.getLastPositionNum());
 										arbol.getPadre().set(i - 2, arbol.getLastPositionNum());
 										arbol.getPadre().set(i - 3, arbol.getLastPositionNum());
@@ -1928,26 +1956,8 @@ public class VistaPrincipal extends JFrame {
 					case "INTEGER":
 					case "REAL":
 					case "Variable":
-						//					case "Numero":
 						arbol.addNumero(contador);
 						arbol.addLexema(lexema);
-						arbol.addPadre(0);
-						contador++;
-						break;
-
-					case "(Variable)":
-						arbol.addNumero(contador);
-						arbol.addLexema(")");
-						arbol.addPadre(0);
-						contador++;
-
-						arbol.addNumero(contador);
-						arbol.addLexema("Variable");
-						arbol.addPadre(0);
-						contador++;
-
-						arbol.addNumero(contador);
-						arbol.addLexema("(");
 						arbol.addPadre(0);
 						contador++;
 						break;
@@ -2098,6 +2108,22 @@ public class VistaPrincipal extends JFrame {
 							arbol.addPadre(0);
 							contador++;
 						}
+						else if(lexema.equals("(" + buscarUnIdentificador(lexema.substring(1, lexema.length() - 1)) + ")")) {
+							arbol.addNumero(contador);
+							arbol.addLexema(")");
+							arbol.addPadre(0);
+							contador++;
+
+							arbol.addNumero(contador);
+							arbol.addLexema(lexema.substring(1, lexema.length() - 1));
+							arbol.addPadre(0);
+							contador++;
+
+							arbol.addNumero(contador);
+							arbol.addLexema("(");
+							arbol.addPadre(0);
+							contador++;
+						}
 						else if(!buscarListaToken(lexema).isEmpty()) {
 							if(isNumeric(lexema) || isDecimal(lexema)) {
 								arbol.addNumero(contador);
@@ -2161,6 +2187,417 @@ public class VistaPrincipal extends JFrame {
 		//		System.out.println("\nNúmero\t\tLexema\t\tPadre");
 		//		for(int i = 0; i < arbol.getSize(); i++)
 		//			System.out.println(arbol.getDatoNumero(i) + "\t" + arbol.getDatoLexema(i) + "\t" + arbol.getDatoPadre(i));
+	}
+	
+	
+	/////////////////////////////////////////////DESDE AQUÍ///////////////////////////////////////////////////////////////
+	/////////////////////////////////////////////COMIENZA EL//////////////////////////////////////////////////////////////
+	/////////////////////////////////////////ANALIZADOR SEMÁNTICO////////////////////////////////////////////////////////
+	
+	public void cargarArbol(String archivo) throws IOException {
+        String cadena;
+        FileReader f = new FileReader(archivo);
+        BufferedReader b = new BufferedReader(f);
+        String[] datos;
+        while((cadena = b.readLine())!=null) {
+            datos = cadena.split("\t\t");
+            arbol.addNumero(Integer.parseInt(datos[0]));
+            arbol.addLexema(datos[1]);
+            arbol.addPadre(Integer.parseInt(datos[2]));
+        }
+        b.close();
+    }
+	
+	public void revisarArbol() throws IOException {
+		int lineaDeErrores = 0;
+		generarFichero.vaciarArchivoTabla();
+		for(int i = 0; i < arbol.getSize(); i++) {
+			if(arbol.getDatoNumero(i) == 1) {
+				lineaDeErrores++;
+				if(arbol.getDatoLexema(i).equals("INTEGER")) {
+					int j = i;
+					TablaValores tabla = new TablaValores();
+					int findNumber = 0;
+					String auxNumber = "";
+					do {
+						if(findNumber != 0)
+							findNumber++;
+						if(revisarArchivos("src\\ficheros\\identificador.txt", arbol.getDatoLexema(j))) {
+							if(new File("src\\ficheros\\filename.txt").length() == 0 && tabla.getSize() == 0) {
+								if(findNumber == 3) {
+									tabla.addIdentificador(arbol.getDatoLexema(j));
+									tabla.addValor(auxNumber);
+									tabla.addTipo("Integer");
+									arbol.getLexema().set(j, arbol.getDatoLexema(j) + "   INTEGER");
+									findNumber = 0;
+								}
+								else {
+									tabla.addIdentificador(arbol.getDatoLexema(j));
+									tabla.addValor("");
+									tabla.addTipo("Integer");
+									arbol.getLexema().set(j, arbol.getDatoLexema(j) + "   INTEGER");
+								}
+							}
+							else {
+								if(findNumber == 3) {
+									if(!revisarTabla(arbol.getDatoLexema(j))) {
+										if(!tabla.contains(arbol.getDatoLexema(j))) {
+											tabla.addIdentificador(arbol.getDatoLexema(j));
+											tabla.addValor(auxNumber);
+											tabla.addTipo("Integer");
+											arbol.getLexema().set(j, arbol.getDatoLexema(j) + "   INTEGER");
+											findNumber = 0;
+										}
+										else {
+											System.out.println("Esa variable ya está declarada");
+											erroresDelAnalizador.add(lineaDeErrores);
+											break;
+										}
+									}
+									else {
+										System.out.println("Esa variable ya existe. Ya fue declarada");
+										erroresDelAnalizador.add(lineaDeErrores);
+										break;
+									}
+								}
+								else {
+									if(!revisarTabla(arbol.getDatoLexema(j))) {
+										tabla.addIdentificador(arbol.getDatoLexema(j));
+										tabla.addValor("");
+										tabla.addTipo("Integer");
+										arbol.getLexema().set(j, arbol.getDatoLexema(j) + "   INTEGER");
+									}
+									else {
+										System.out.println("Esa variable ya existe. Ya fue declarada");
+										erroresDelAnalizador.add(lineaDeErrores);
+										break;
+									}
+								}
+							}
+						}
+						else if(isNumeric(arbol.getDatoLexema(j))) {
+							auxNumber = arbol.getDatoLexema(j);
+							arbol.getLexema().set(j, arbol.getDatoLexema(j) + "   INTEGER");
+							findNumber++;
+						}
+						else if(isDecimal(arbol.getDatoLexema(j))) {
+							auxNumber = arbol.getDatoLexema(j);
+							arbol.getLexema().set(j, arbol.getDatoLexema(j) + "   REAL");
+							findNumber++;
+						}
+						else if(arbol.getDatoLexema(j).equals("Asignacion")) {
+							int k = j;
+							boolean flag = true;
+							do {
+								while(!arbol.getDatoLexema(k).equals("=")) 
+									k--;
+								if(arbol.getDatoPadre(k) == arbol.getDatoNumero(j))
+									flag = false;
+								else {
+									k--;
+									continue;
+								}
+							}while(flag);
+							
+							if(arbol.getDatoLexema(k + 1).contains("INTEGER") && arbol.getDatoLexema(k - 1).contains("INTEGER"))
+								arbol.getLexema().set(j, arbol.getDatoLexema(j) + "   INTEGER");
+							else {
+								System.out.println("Dato incorrecto");
+								erroresDelAnalizador.add(lineaDeErrores);
+							}
+						}
+						j++;
+						if(j == arbol.getSize())
+							break;
+					}
+					while(arbol.getDatoNumero(j) != 1);
+					i = j - 1;
+					String newTable = "";
+					for(int t = 0; t < tabla.getSize(); t++)
+						newTable += tabla.getIdentificador(t) + "\t" + tabla.getValor(t) + "\t" + tabla.getTipo(t) + "\n";
+					generarFichero.escribirTabla(newTable);					
+				}
+				
+				//ES CUANDO ENCUENTRA UN REAL
+				else if(arbol.getDatoLexema(i).equals("REAL")) {
+					int j = i;
+					TablaValores tabla = new TablaValores();
+					int findNumber = 0;
+					String auxNumber = "";
+					do {
+						if(findNumber != 0)
+							findNumber++;
+						if(revisarArchivos("src\\ficheros\\identificador.txt", arbol.getDatoLexema(j))) {
+							if(new File("src\\ficheros\\filename.txt").length() == 0 && tabla.getSize() == 0) {
+								if(findNumber == 3) {
+									tabla.addIdentificador(arbol.getDatoLexema(j));
+									tabla.addValor(auxNumber);
+									tabla.addTipo("Real");
+									arbol.getLexema().set(j, arbol.getDatoLexema(j) + "   REAL");
+									findNumber = 0;
+								}
+								else {
+									tabla.addIdentificador(arbol.getDatoLexema(j));
+									tabla.addValor("");
+									tabla.addTipo("Real");
+									arbol.getLexema().set(j, arbol.getDatoLexema(j) + "   REAL");
+								}
+							}
+							else {
+								if(findNumber == 3) {
+									if(!revisarTabla(arbol.getDatoLexema(j))) {
+										if(!tabla.contains(arbol.getDatoLexema(j)) ) {
+											tabla.addIdentificador(arbol.getDatoLexema(j));
+											tabla.addValor(auxNumber);
+											tabla.addTipo("Real");
+											arbol.getLexema().set(j, arbol.getDatoLexema(j) + "   REAL");
+											findNumber = 0;
+										}
+										else {
+											System.out.println("Esa variable ya ha sido declarada");
+											erroresDelAnalizador.add(lineaDeErrores);
+											break;
+										}
+									}
+									else {
+										System.out.println("Esa variable ya existe. Ya fue declarada");
+										erroresDelAnalizador.add(lineaDeErrores);
+										break;
+									}
+								}
+								else {
+									if(!revisarTabla(arbol.getDatoLexema(j))) {
+										tabla.addIdentificador(arbol.getDatoLexema(j));
+										tabla.addValor("");
+										tabla.addTipo("Real");
+										arbol.getLexema().set(j, arbol.getDatoLexema(j) + "   REAL");
+									}
+									else {
+										System.out.println("Esa variable ya existe. Ya fue declarada");
+										erroresDelAnalizador.add(lineaDeErrores);
+										break;
+									}
+								}
+							}
+						}
+						else if(isNumeric(arbol.getDatoLexema(j))) {
+							auxNumber = arbol.getDatoLexema(j);
+							arbol.getLexema().set(j, arbol.getDatoLexema(j) + "   INTEGER");
+							findNumber++;
+						}
+						else if(isDecimal(arbol.getDatoLexema(j))) {
+							auxNumber = arbol.getDatoLexema(j);
+							arbol.getLexema().set(j, arbol.getDatoLexema(j) + "   REAL");
+							findNumber++;
+						}
+						else if(arbol.getDatoLexema(j).equals("Asignacion")) {
+							int k = j;
+							boolean flag = true;
+							do {
+								while(!arbol.getDatoLexema(k).equals("=")) 
+									k--;
+								if(arbol.getDatoPadre(k) == arbol.getDatoNumero(j))
+									flag = false;
+								else {
+									k--;
+									continue;
+								}
+							}while(flag);
+							
+							if(arbol.getDatoLexema(k + 1).contains("REAL") && arbol.getDatoLexema(k - 1).contains("REAL"))
+								arbol.getLexema().set(j, arbol.getDatoLexema(j) + "   REAL");
+							else {
+								System.out.println("Dato incorrecto");
+								erroresDelAnalizador.add(lineaDeErrores);
+							}
+						}
+						j++;
+						if(j == arbol.getSize())
+							break;
+					}
+					while(arbol.getDatoNumero(j) != 1);
+					i = j - 1;
+					String newTable = "";
+					for(int t = 0; t < tabla.getSize(); t++)
+						newTable += tabla.getIdentificador(t) + "\t" + tabla.getValor(t) + "\t" + tabla.getTipo(t) + "\n";
+					generarFichero.escribirTabla(newTable);
+				}
+				
+				//DECLARACIÓN DE OPERACIÓN
+				else if(revisarArchivos("src\\ficheros\\identificador.txt", arbol.getDatoLexema(i))) {
+					if(new File("src\\ficheros\\filename.txt").length() == 0) {
+						System.out.println("Error");
+						erroresDelAnalizador.add(lineaDeErrores);
+						break;
+					}
+					else {
+						String tipoDeDato = "";
+						if(revisarTabla(arbol.getDatoLexema(i))) {
+							String dato = encontrarTipo(arbol.getDatoLexema(i));
+							if(dato.contains("Integer")) {
+								arbol.getLexema().set(i, arbol.getDatoLexema(i) + "   INTEGER");
+								tipoDeDato = "INTEGER";
+							}
+							else if(dato.contains("Real")) {
+								arbol.getLexema().set(i, arbol.getDatoLexema(i) + "   REAL");
+								tipoDeDato = "REAL";
+							}
+						}
+						else {
+							System.out.println("Esta variable no ha sido declarada");
+							erroresDelAnalizador.add(lineaDeErrores);
+							break;
+						}
+						int j = i + 2;
+						List<String> tiposDeDatos = new ArrayList<String>();
+						do {
+							if(revisarArchivos("src\\ficheros\\identificador.txt", arbol.getDatoLexema(j))) {
+								if(revisarTabla(arbol.getDatoLexema(j))) {
+									if(encontrarTipo(arbol.getDatoLexema(j)).contains("Integer")) {
+										tiposDeDatos.add("INTEGER");
+										arbol.getLexema().set(j, arbol.getDatoLexema(j) + "   INTEGER");
+										j++;
+									}
+									else {
+										tiposDeDatos.add("REAL");
+										arbol.getLexema().set(j, arbol.getDatoLexema(j) + "   REAL");
+										j++;
+									}
+								}
+								else {
+									System.out.println("La variable no ha sido declarada");
+									erroresDelAnalizador.add(lineaDeErrores);
+									break;
+								}
+							}
+							else if(isNumeric(arbol.getDatoLexema(j))) {
+								tiposDeDatos.add("INTEGER");
+								arbol.getLexema().set(j, arbol.getDatoLexema(j) + "   INTEGER");
+								j++;
+							}
+							else if(isDecimal(arbol.getDatoLexema(j))) {
+								tiposDeDatos.add("REAL");
+								arbol.getLexema().set(j, arbol.getDatoLexema(j) + "   REAL");
+								j++;
+							}
+							else if(arbol.getDatoLexema(j).equals("Operacion")) {
+								if(tiposDeDatos.size() == 2) {
+									if(tiposDeDatos.get(0).equals(tipoDeDato) && tiposDeDatos.get(1).equals(tipoDeDato)) {
+										arbol.getLexema().set(j, arbol.getDatoLexema(j) + "   "+ tipoDeDato);
+										j++;
+									}
+									else {
+										System.out.println("Los tipos de datos no coinciden. Primer Operacion");
+										break;
+									}
+								}
+								else {
+									if(tiposDeDatos.get(0).equals(tipoDeDato) && tiposDeDatos.get(1).equals(tipoDeDato)) {
+										arbol.getLexema().set(j, arbol.getDatoLexema(j) + "   "+ tipoDeDato);
+										tiposDeDatos.remove(0);
+										tiposDeDatos.remove(1);
+										tiposDeDatos.add(tipoDeDato);
+										j++;
+									}
+									else {
+										System.out.println("Los tipos de datos no coinciden. Segundo Operacion");
+										erroresDelAnalizador.add(lineaDeErrores);
+										break;
+									}
+								}
+							}
+							else
+								j++;
+						}while(!arbol.getDatoLexema(j).equals("Resultado Final"));
+						i = j;
+					}
+				}
+				
+				//ES CUANDO HAY UNA DECLARACIÓN SIMPLE
+				else if(arbol.getDatoLexema(i).equals(";")) {
+					int j = i;
+					boolean flag = true;
+					j++;
+					do {
+						if(!arbol.getDatoLexema(j).equals("=")) {
+							if(isNumeric(arbol.getDatoLexema(j))) {
+								arbol.getLexema().set(j, arbol.getDatoLexema(j) + "   INTEGER");
+								j++;
+								continue;
+							}
+							else if(isDecimal(arbol.getDatoLexema(j))) {
+								arbol.getLexema().set(j, arbol.getDatoLexema(j) + "   REAL");
+								j++;
+								continue;
+							}
+							
+							if(revisarTabla(arbol.getDatoLexema(j))) {
+								String dato = encontrarTipo(arbol.getDatoLexema(j));
+								if(dato.contains("Integer")) {
+									arbol.getLexema().set(j, arbol.getDatoLexema(j) + "   INTEGER");
+									j++;
+									continue;
+								}
+								else if(dato.contains("Real")) {
+									arbol.getLexema().set(j, arbol.getDatoLexema(j) + "   REAL");
+									j++;
+									continue;
+								}
+							}
+							else {
+								System.out.println("Esta variable no ha sido declarada");
+								flag = false;
+								erroresDelAnalizador.add(lineaDeErrores);
+								break;
+							}
+						}
+						else
+							j++;
+					}while(!arbol.getDatoLexema(j).equals("Asignacion"));
+					if(flag) {
+						if(arbol.getDatoLexema(j - 1).contains("INTEGER") && arbol.getDatoLexema(j - 3).contains("INTEGER"))
+							arbol.getLexema().set(j, arbol.getDatoLexema(j) + "   INTEGER");
+						else if(arbol.getDatoLexema(j - 1).contains("REAL") && arbol.getDatoLexema(j - 3).contains("REAL"))
+							arbol.getLexema().set(j, arbol.getDatoLexema(j) + "   REAL");
+						else {
+							System.out.println("Los datos no cumplen");
+							erroresDelAnalizador.add(lineaDeErrores);
+							break;
+						}
+					}
+					else {
+						erroresDelAnalizador.add(lineaDeErrores);
+						break;
+					}
+				}
+				else if(arbol.getDatoLexema(i).equals("READ") || arbol.getDatoLexema(i).equals("WRITE")) {
+					if(revisarTabla(arbol.getDatoLexema(i + 2))) {
+						if(encontrarTipo(arbol.getDatoLexema(i + 2)).contains("Integer"))
+							arbol.getLexema().set(i + 2, arbol.getDatoLexema(i + 2) + "   INTEGER");
+						else
+							arbol.getLexema().set(i + 2, arbol.getDatoLexema(i + 2) + "   REAL");
+					}
+					else {
+						System.out.println("La variable no ha sido declarada");
+						erroresDelAnalizador.add(lineaDeErrores);
+						break;
+					}
+				}
+				else 
+					continue;
+			}
+			else
+				continue;
+		}
+		
+		for(int i = 0; i < arbol.getSize(); i++)
+			System.out.println(arbol.getDatoNumero(i) + "\t" + arbol.getDatoLexema(i) + "\t" + arbol.getDatoPadre(i));
+		
+		if(arbol.getDatoLexema(arbol.getSize() - 1).equals("Fin") && arbol.getDatoLexema(2).equals("Inicio")) {
+			System.out.println("Cumple con la regla");
+		}
+		else
+			System.out.println("No cumple con la regla de inicio o fin");
 	}
 
 	public void llenarReglas() {
@@ -2320,4 +2757,55 @@ public class VistaPrincipal extends JFrame {
 		else
 			return "";
 	}
+	public String buscarUnIdentificador(String buscar) throws IOException {
+		String tokenAux = "";
+		FileReader f = new FileReader("src\\ficheros\\identificador.txt");
+		BufferedReader b = new BufferedReader(f);
+		while((tokenAux = b.readLine()) != null) {
+			if(buscar.equals(tokenAux))
+				return tokenAux;
+			else 
+				continue;
+		}
+		return "";
+	}
+	
+	public String encontrarTipo(String buscar) throws IOException {
+    	String tokenAux = "";
+		FileReader f = new FileReader("src\\ficheros\\filename.txt");
+		BufferedReader b = new BufferedReader(f);
+		while((tokenAux = b.readLine()) != null) {
+			if(tokenAux.contains(buscar))
+				return tokenAux;
+			else 
+				continue;
+		}
+		return "";
+    }
+	
+	public String encontrarIdentificador(String ruta, String buscar) throws IOException {
+    	String tokenAux = "";
+		FileReader f = new FileReader(ruta);
+		BufferedReader b = new BufferedReader(f);
+		while((tokenAux = b.readLine()) != null) {
+			if(tokenAux.contains(buscar))
+				return tokenAux;
+			else 
+				continue;
+		}
+		return "";
+    }
+	
+	public boolean revisarTabla(String buscar) throws IOException {
+    	String tokenAux = "";
+		FileReader f = new FileReader("src\\ficheros\\filename.txt");
+		BufferedReader b = new BufferedReader(f);
+		while((tokenAux = b.readLine()) != null) {
+			if(tokenAux.contains(buscar))
+				return true;
+			else 
+				continue;
+		}
+		return false;
+    }
 }
