@@ -1,0 +1,5 @@
+a1		Integer
+a2		Integer
+a3		Integer
+b22		Real
+b23	20	Real

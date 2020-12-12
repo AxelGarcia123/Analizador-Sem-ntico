@@ -1,2 +1,6 @@
-Indentificador	valor
+Indentificador	Valor	Tipo
+a1
 a2
+a3
+b22
+b23

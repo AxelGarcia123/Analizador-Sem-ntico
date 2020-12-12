@@ -1,0 +1,5 @@
+(INTEGER , tk_INTEGER)
+(a1 , tk_a1)
+(= , tk_=)
+(20 , tk_20)
+(; , tk_;)

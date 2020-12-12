@@ -1,0 +1,58 @@
+1		INTEGER		13
+2		a1		10
+3		a2		7
+4		a3		5
+5		Declaracion		8
+6		,		8
+7		Declaracion		8
+8		Declaracion		12
+9		,		12
+10		Declaracion		12
+11		;		14
+12		Declaracion		14
+13		Tipo		14
+14		Declaracion Final		0
+1		REAL		12
+2		b22		9
+3		20		6
+4		=		6
+5		b23		6
+6		Asignacion		7
+7		Declaracion		11
+8		,		11
+9		Declaracion		11
+10		;		13
+11		Declaracion		13
+12		Tipo		13
+13		Declaracion Final		0
+1		b22		30
+2		ADD		26
+3		SUB		17
+4		3.3		5
+5		Factor		21
+6		b23		7
+7		Factor		12
+8		3.4		9
+9		Factor		10
+10		Opcion		14
+11		,		14
+12		Opcion		14
+13		)		16
+14		Elementos		16
+15		(		16
+16		Cuerpo Operacion		18
+17		Tipo Operacion		18
+18		Operacion		19
+19		Opcion		23
+20		,		23
+21		Opcion		23
+22		)		25
+23		Elementos		25
+24		(		25
+25		Cuerpo Operacion		28
+26		Tipo Operacion		28
+27		;		31
+28		Operacion		31
+29		=		31
+30		Variable		31
+31		Resultado Final		0

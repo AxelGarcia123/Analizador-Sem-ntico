@@ -2,6 +2,7 @@ package archivos;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -23,7 +24,7 @@ import com.itextpdf.layout.element.Table;
 
 
 public class EscribirFichero {
-	
+
 	public  void  crearPDF(){
 		try {
 			PdfWriter write = new PdfWriter("src\\ficheros\\archivo"+fechaHora()+".pdf");
@@ -41,7 +42,7 @@ public class EscribirFichero {
 			while((linea=br.readLine())!=null){
 				procces(table, linea, font, true);
 			}
-			
+
 			document.add(table);
 			br.close();
 			document.flush();
@@ -96,11 +97,11 @@ public class EscribirFichero {
 		}
 		return fichero;
 	}
-	
+
 	public String crearListasArbolDerivacion(String token){
 		String fichero = "src\\ficheros\\arbolDerivacion.txt";
 		try {
-			FileWriter escritura = new FileWriter(fichero, true);
+			FileWriter escritura = new FileWriter(fichero);
 			BufferedWriter buffer = new BufferedWriter(escritura);
 			buffer.write(token);
 			buffer.newLine();
@@ -131,5 +132,40 @@ public class EscribirFichero {
 		}
 		else
 			return false;
+	}
+
+	public void escribirTabla(String nuevoDato) throws IOException {
+		String tokenAux = "";
+		String cadenaCompleta = "";
+		FileReader f = new FileReader("src\\ficheros\\filename.txt");
+		BufferedReader b = new BufferedReader(f);
+		while((tokenAux = b.readLine()) != null)
+			cadenaCompleta += tokenAux + "\n";
+		
+		try {
+			String ruta = "src\\ficheros\\filename.txt";
+			File file = new File(ruta);
+			if (!file.exists()) {
+				file.createNewFile();
+			}
+
+			FileWriter fw = new FileWriter(new File("src\\ficheros\\filename.txt"));
+			BufferedWriter bw = new BufferedWriter(fw);
+			bw.write(cadenaCompleta + nuevoDato);
+			bw.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
+	
+	public void vaciarArchivoTabla() {
+		try {
+			FileWriter fw = new FileWriter(new File("src\\ficheros\\filename.txt"));
+			BufferedWriter bw = new BufferedWriter(fw);
+			bw.write("");
+			bw.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 }

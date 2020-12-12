@@ -115,7 +115,7 @@ public class VistaPrincipal extends JFrame {
 		automataReal = new AutomataReal();
 		toke = new ArrayList<>();
 		identificadores = new ArrayList<>();
-		identificadores.add("Indentificador\tvalor");
+		identificadores.add("Indentificador\tValor\tTipo");
 		pila = new Pila();
 		reglas = new HashMap<String, String>();
 		arbol = new ArbolDerivacion();
@@ -523,7 +523,6 @@ public class VistaPrincipal extends JFrame {
 		for(int i = 0; i < cadena.length; i++) {
 			cadena[i] = cadena[i].replace(" ", "").replace("\r", "").replace("\t", "");
 			pila.limpiarPila();
-			//			arbol.vaciarArbol();
 			flag = false;
 			/* En este IF queremos decir que si en el arreglo de errores, en la posición "i" hay un cero, vamos
 			 * a hacer el procedimiento del analizador sintáctico.
@@ -605,15 +604,9 @@ public class VistaPrincipal extends JFrame {
 								if(resultadoFinal(cadena[i].replace(" ", "")))
 									arbolDeTipo();
 								else {
-									String rest = cadena[i].substring(pila.getLastPositionCadena().indexOf("=") + 1);
-									rest = buscarListaToken(rest);
-									if(!rest.isEmpty()) {
-										if(asignacion(cadena[i])) {
-											for(int j = 0; j < pila.getSize(); j++)
-												System.out.println(pila.getDatoPila(j) + "\t\t\t\t" + pila.getDatoCadena(j) + "\t\t\t\t" + pila.getDatoAccion(j));
-										}
-										else
-											erroresDelAnalizador.add(i + 1);
+									pila.limpiarPila();
+									if(asignacionSimple(cadena[i])) {
+										arbolDeTipo();
 									}
 									else
 										erroresDelAnalizador.add(i + 1);
@@ -633,9 +626,61 @@ public class VistaPrincipal extends JFrame {
 			else
 				continue;
 		}
-
-		for(int j = 0; j <arbol.getSize(); j++) {
-			generarFichero.crearListasArbolDerivacion(arbol.getDatoNumero(j) + "\t\t" + arbol.getDatoLexema(j) + "\t\t"+ arbol.getDatoPadre(j));
+		String arbolDerivacion = "";
+		for(int j = 0; j <arbol.getSize(); j++)
+			arbolDerivacion += arbol.getDatoNumero(j) + "\t\t" + arbol.getDatoLexema(j) + "\t\t"+ arbol.getDatoPadre(j) + "\n";
+		generarFichero.crearListasArbolDerivacion(arbolDerivacion);
+	}
+	
+	public boolean asignacionSimple(String linea) throws IOException {
+		pila.addPila("0");
+		pila.addCadena(linea);
+		pila.addAccion("0");
+		for(int k = 0; k < 4; k++) {
+			if(k == 3)
+				break;
+			else {
+				String asig = buscarListaToken(pila.getLastPositionCadena());
+				if(!asig.isEmpty()) {
+					if(pila.getLastPositionPila().equals("0")) {
+						pila.addPila(asig);
+						pila.addCadena(pila.getLastPositionCadena().substring(pila.getLastPositionCadena().indexOf(asig) + asig.length()));
+						pila.addAccion("Llevar a pila");
+					}
+					else {
+						pila.addPila(pila.getLastPositionPila() + asig);
+						try {
+							pila.addCadena(pila.getLastPositionCadena().substring(pila.getLastPositionCadena().indexOf(asig) + asig.length()));
+						} catch (IndexOutOfBoundsException e) {
+							return false;
+						}
+						pila.addAccion("Llevar a pila");
+					}
+				}
+				else
+					break;
+			}
+		}
+		if(pila.getLastPositionCadena().equals(";")) {
+			if(asignacion(pila.getLastPositionPila())) {
+				pila.getPila().set(pila.getSize() - 1, pila.getLastPositionPila() + pila.getDatoCadena(pila.getSize() - 2));
+				String auxAccion = pila.getLastPositionAccion();
+				pila.getAccion().set(pila.getSize() - 1, "Llevar a pila");
+				pila.addPila("Asignacion");
+				pila.addCadena("$");
+				pila.addAccion(auxAccion + ";");
+				for(int i = 0; i < pila.getSize(); i++)
+					System.out.println(pila.getDatoPila(i) + "\t\t\t\t" + pila.getDatoCadena(i) + "\t\t\t\t" + pila.getDatoAccion(i));
+				return true;
+			}
+			else {
+				System.out.println("ES CUANDO EL MÉTODO ASIGNACIÓN NO FUNCIONA");
+				return false;
+			}
+		}
+		else {
+			System.out.println("ES CUANDO NO HAY ;");
+			return false;
 		}
 	}
 
@@ -829,7 +874,8 @@ public class VistaPrincipal extends JFrame {
 						}
 						else {
 							if(revisarArchivos("src\\ficheros\\identificador.txt", aux)) {
-								pila.addPila(pila.getLastPositionPila().replace(aux, "Declaracion"));
+								pila.addPila(pila.getLastPositionPila().substring(0, pila.getLastPositionPila().indexOf(aux)) + "Declaracion"+ pila.getLastPositionPila().substring(pila.getLastPositionPila().indexOf(aux) + aux.length()));
+								System.out.println("Posicion de la pila: "+ pila.getLastPositionPila());
 								pila.addCadena("$");
 								pila.addAccion("Declaracion -> "+ aux);
 							}
@@ -869,7 +915,8 @@ public class VistaPrincipal extends JFrame {
 							}
 						}
 						else if(aux.equals("Asignacion")) {
-							pila.addPila(pila.getLastPositionPila().substring(0, pila.getLastPositionPila().indexOf("Asignacion")) + "Declaracion" + pila.getLastPositionPila().substring(pila.getLastPositionPila().indexOf("Asignacion") + "Asignacio".length() + 1));
+							pila.addPila(pila.getLastPositionPila().substring(0, pila.getLastPositionPila().indexOf(aux)) + "Declaracion"+ pila.getLastPositionPila().substring(pila.getLastPositionPila().indexOf(aux) + aux.length()));
+							System.out.println("Posicion de la pila: "+ pila.getLastPositionPila());
 							pila.addCadena("$");
 							pila.addAccion("Declaracion -> Asignacion");
 						}
@@ -947,8 +994,10 @@ public class VistaPrincipal extends JFrame {
 						count = i;
 						break;
 					}
-					else 
+					else {
+						System.out.println("ES CUANDO NO HA ENCONTRADO UN =");
 						return false;
+					}
 				}
 
 				String auxLinea = linea.substring(count + 1, linea.length());
@@ -960,8 +1009,10 @@ public class VistaPrincipal extends JFrame {
 						pila.addAccion("Asignacion -> "+ aux + " = "+ auxLinea);
 						return true;
 					}
-					else
+					else {
+						System.out.println("ES CUANDO NO CUMPLE CON LA REGLA DE ASIGNACIÓN");
 						return false;
+					}
 				}
 				else if(isDecimal(auxLinea)) {
 					nuevaCadena += "Numero";
@@ -971,12 +1022,14 @@ public class VistaPrincipal extends JFrame {
 						pila.addAccion("Asignacion -> "+ aux + " = "+ auxLinea);
 						return true;
 					}
-					else
+					else {
+						System.out.println("ES CUANDO NO CUMPLE CON LA REGLA DE ASIGNACIÓN. Segunda");
 						return false;
+					}
 				}
 				/**PENDIENTE PARA CUANDO NO SEA NI DECIMAL NI ENTERO Y CUANDO LA PILA TENGA DATOS YA ADENTRO*/
 				else {
-
+					System.out.println("Entra aquí en el else vacio");
 				}
 			}
 		}
@@ -1033,11 +1086,14 @@ public class VistaPrincipal extends JFrame {
 			else
 				return false;
 		}
-
-		if(operacion(pila.getLastPositionPila().substring("Variable = ".length()))) {
-			for(int i = 0; i < pila.getSize(); i++)
-				System.out.println(pila.getDatoPila(i) + "\t\t\t\t" + pila.getDatoCadena(i) + "\t\t\t\t" + pila.getDatoAccion(i));
-			return true;
+		try {
+			if(operacion(pila.getLastPositionPila().substring("Variable = ".length()))) {
+				for(int i = 0; i < pila.getSize(); i++)
+					System.out.println(pila.getDatoPila(i) + "\t\t\t\t" + pila.getDatoCadena(i) + "\t\t\t\t" + pila.getDatoAccion(i));
+				return true;
+			}
+		} catch (IndexOutOfBoundsException e) {
+			return false;
 		}
 		return false;
 	}
@@ -1707,23 +1763,50 @@ public class VistaPrincipal extends JFrame {
 						 * 		VARIABLE = OPERACION*/ // ES AQUÍ DONDE BUSCAS EL IDENTIFICADOR
 						String identificador = buscarLexema(lexema);
 						if(revisarArchivos("src\\ficheros\\identificador.txt", identificador)) {
-							String numero = lexema.substring(lexema.indexOf("= ") + "= ".length());
-							numero = buscarListaToken(numero);
-							if(isDecimal(numero) || isNumeric(numero)) {
-								arbol.addNumero(contador);
-								arbol.addLexema(numero);
-								arbol.addPadre(0);
-								contador++;
+							String restoDeLaCadena = lexema.substring(lexema.indexOf("= ") + "= ".length());
+							String newNumero = buscarListaToken(restoDeLaCadena);
+							restoDeLaCadena = restoDeLaCadena.replace(newNumero, "");
+							if(isDecimal(newNumero) || isNumeric(newNumero)) {
+								if(restoDeLaCadena.isEmpty()) {
+									arbol.addNumero(contador);
+									arbol.addLexema(newNumero);
+									arbol.addPadre(0);
+									contador++;
 
-								arbol.addNumero(contador);
-								arbol.addLexema("=");
-								arbol.addPadre(0);
-								contador++;
+									arbol.addNumero(contador);
+									arbol.addLexema("=");
+									arbol.addPadre(0);
+									contador++;
 
-								arbol.addNumero(contador);
-								arbol.addLexema(identificador);
-								arbol.addPadre(0);
-								contador++;
+									arbol.addNumero(contador);
+									arbol.addLexema(identificador);
+									arbol.addPadre(0);
+									contador++;
+								}
+								else {
+									String token = buscarListaToken(restoDeLaCadena);
+									if(!token.isEmpty() && token.equals(";")) {
+										arbol.addNumero(contador);
+										arbol.addLexema(token);
+										arbol.addPadre(0);
+										contador++;
+										
+										arbol.addNumero(contador);
+										arbol.addLexema(newNumero);
+										arbol.addPadre(0);
+										contador++;
+
+										arbol.addNumero(contador);
+										arbol.addLexema("=");
+										arbol.addPadre(0);
+										contador++;
+
+										arbol.addNumero(contador);
+										arbol.addLexema(identificador);
+										arbol.addPadre(0);
+										contador++;
+									}
+								}
 							}
 						}
 						else {
@@ -1868,6 +1951,7 @@ public class VistaPrincipal extends JFrame {
 						arbol.addPadre(0);
 						contador++;
 						break;
+						
 					case "Asignacion":
 						arbol.addNumero(contador);
 						arbol.addLexema(lexema);
@@ -2046,6 +2130,14 @@ public class VistaPrincipal extends JFrame {
 					}
 				}
 			}
+		}
+		else if(pila.getLastPositionPila().equals("Asignacion")) {
+			String ultimoLexema = pila.getLastPositionPila();
+			arbol.addNumero(arbol.getLastPositionNum() + 1);
+			arbol.addLexema(ultimoLexema);
+			arbol.addPadre(0);
+			for(int i = arbol.getSize(); i > arbol.getSize() - 5; i--)
+				arbol.getPadre().set(i - 1, arbol.getLastPositionNum());
 		}
 		else {
 			String ultimoLexema = pila.getLastPositionPila();
