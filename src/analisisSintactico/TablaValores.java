@@ -45,4 +45,8 @@ public class TablaValores {
 	public boolean contains(String identificador) {
 		return this.identificador.contains(identificador);
 	}
+	
+	public List<String> getValor() {
+		return this.valor;
+	}
 }

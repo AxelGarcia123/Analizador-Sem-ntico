@@ -135,13 +135,6 @@ public class EscribirFichero {
 	}
 
 	public void escribirTabla(String nuevoDato) throws IOException {
-		String tokenAux = "";
-		String cadenaCompleta = "";
-		FileReader f = new FileReader("src\\ficheros\\filename.txt");
-		BufferedReader b = new BufferedReader(f);
-		while((tokenAux = b.readLine()) != null)
-			cadenaCompleta += tokenAux + "\n";
-		
 		try {
 			String ruta = "src\\ficheros\\filename.txt";
 			File file = new File(ruta);
@@ -151,7 +144,7 @@ public class EscribirFichero {
 
 			FileWriter fw = new FileWriter(new File("src\\ficheros\\filename.txt"));
 			BufferedWriter bw = new BufferedWriter(fw);
-			bw.write(cadenaCompleta + nuevoDato);
+			bw.write(nuevoDato);
 			bw.close();
 		} catch (Exception e) {
 			e.printStackTrace();
